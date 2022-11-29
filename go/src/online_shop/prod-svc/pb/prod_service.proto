@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package proto;
+option go_package = "../pb";
+
+// protoc -I=pb --go_out=pb  --go-grpc_out=pb  pb/prod_service.proto
+
+service ProdService {
+    rpc RegisterProduct (RegProductReq) returns (ProdRes){}
+    rpc RegisterProducer (RegProducerReq) returns (ProdRes){}
+    rpc RegisterGroup (RegGroupReq) returns (ProdRes){}
+    rpc GetListOfProducts (EmptyProdReq) returns (GetListOfProductsRes){}
+    rpc GetListOfProducers (EmptyProdReq) returns (GetListOfProducersRes){}
+    rpc GetListOfGroups (EmptyProdReq) returns (GetListOfGroupsRes){}
+    rpc DeleteProducer (DeleteProducerReq) returns (ProdRes){}
+    rpc ChangeProducerStatus (ChangeStatusReq) returns (ProdRes){}
+}
+
+message EmptyProdReq{
+    
+}
+
+message ProdRes {
+    string err = 1;
+}
+
+message Product {
+    int32 current_discount = 1;
+    string model = 2;
+    string sku = 3;
+    string upc = 4;
+    string jan = 5;
+    string usbn = 6;
+    string mpn = 7;
+    int32 producer_id = 8;
+    repeated string photos = 9;
+    int32 amount = 10;
+    double rating = 11;
+    string characteristics  = 12;
+}
+
+message Producer{
+    int32 id = 1;
+    repeated string photos = 2;
+    bool status = 3;
+    map<string, Localization>  localizations = 4;
+}
+
+message Group{
+    int32 id = 1; 
+    repeated string photos = 2;
+}
+
+message GetListOfProductsRes{
+    repeated Product productslist = 1 ;
+}
+
+message GetListOfProducersRes{
+    message result{
+        int32 producer_id = 1;
+        string title = 2;
+        repeated string photos = 3;
+    }
+    repeated result producerslist = 1 ; 
+    string err = 2;
+}
+
+message GetListOfGroupsRes{
+    repeated Group groupslist = 1 ; 
+}
+
+message Localization{
+    string title = 1;
+    string description = 2;
+}
+
+message RegProductReq{
+    Product product = 1;
+    repeated Localization localizations = 2;
+}
+
+message RegProducerReq{
+    repeated string photos = 1;
+    bool status = 2;
+    map<string, Localization> localizations = 3;
+}
+
+message RegGroupReq{
+    int32 producer_id = 1;
+    string photos = 2;
+
+}
+
+message DeleteProducerReq {
+    int32 producer_id = 1;
+}
+
+message ChangeStatusReq{
+    int32 id = 1;
+}

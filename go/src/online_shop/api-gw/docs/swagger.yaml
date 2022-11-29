@@ -1,0 +1,93 @@
+basePath: /
+definitions:
+  pb.RegUserReq:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  pb.SignInReq:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  pb.UserRes:
+    properties:
+      err:
+        type: string
+    type: object
+host: localhost:9012
+info:
+  contact:
+    email: info@positiv.kz
+    name: Michael Studzitsky
+    url: https://positiv.kz
+  description: Quick shop and related service API documentation
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: https://postiv.kz
+  title: Quick Shop API
+  version: "1.0"
+paths:
+  /user/login:
+    post:
+      description: Аутенфикации пользователя
+      parameters:
+      - description: ' '
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/pb.SignInReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pb.UserRes'
+        "500":
+          description: error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Аутенфикации пользователя
+      tags:
+      - user
+  /user/reguster/user:
+    post:
+      description: Регистрация пользователя
+      parameters:
+      - description: ' '
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/pb.RegUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pb.UserRes'
+        "500":
+          description: error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Регистрация пользователя
+      tags:
+      - user
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
