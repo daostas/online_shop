@@ -70,15 +70,6 @@ func NewProducer(photos pq.StringArray, status bool) *models.Producers {
 	}
 }
 
-func NewLocalizaionForProducer(producer_id int32, lang_id int32, title, description string) *models.ProducersLocalization {
-	return &models.ProducersLocalization{
-		ProducerID:  &producer_id,
-		LangID:      &lang_id,
-		Title:       title,
-		Description: &description,
-	}
-}
-
 func NewBasketProduct(basket_id int32, product_id int32) *models.BasketsProducts {
 	return &models.BasketsProducts{
 		BasketID:  &basket_id,
@@ -101,5 +92,64 @@ func NewSetting(key, value string) *models.Settings {
 	return &models.Settings{
 		Key:   key,
 		Value: value,
+	}
+}
+
+func NewAdmin(login, password, role string) *models.Admins {
+	return &models.Admins{
+		Login:    login,
+		Password: password,
+		Role:     role,
+	}
+}
+func NewProduct(parent_id *int32, model, sku, upc, jan, usbn, mpn string, photos pq.StringArray, amount *int32, rating *float64, discount *int32, status bool) *models.Products {
+	return &models.Products{
+		ParentID:         parent_id,
+		Model:            &model,
+		Sku:              &sku,
+		Upc:              &upc,
+		Jan:              &jan,
+		Usbn:             &usbn,
+		Mpn:              &mpn,
+		Photos:           photos,
+		Amount:           amount,
+		Rating:           rating,
+		CurreuntDiscount: discount,
+		Status:           status,
+	}
+}
+
+func NewLocalizaionForProducer(producer_id int32, lang_id int32, title, description string) *models.ProducersLocalization {
+	return &models.ProducersLocalization{
+		ProducerID:  &producer_id,
+		LangID:      &lang_id,
+		Title:       title,
+		Description: &description,
+	}
+}
+
+func NewLocalizaionForProducts(product_id int32, lang_id int32, title, description string) *models.ProductsLocalization {
+	return &models.ProductsLocalization{
+		ProductID:   &product_id,
+		LangID:      &lang_id,
+		Title:       title,
+		Description: &description,
+	}
+}
+
+func NewLocalizaionForGroups(group_id int32, lang_id int32, title, description string) *models.GroupsLocalization {
+	return &models.GroupsLocalization{
+		GroupID:     &group_id,
+		LangID:      &lang_id,
+		Title:       title,
+		Description: &description,
+	}
+}
+
+func NewGroup(parent_id *int32, photos pq.StringArray, status bool) *models.Groups {
+	return &models.Groups{
+		ParentID: parent_id,
+		Photos:   photos,
+		Status:   status,
 	}
 }

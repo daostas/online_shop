@@ -3,8 +3,8 @@ package config
 import "github.com/spf13/viper"
 
 type Config struct {
-	Port       string `mapstructure:"PORT"`
-	UserSvcUrl string `mapstructure:"USER_SVC_URL"`
+	Port         string `mapstructure:"PORT"`
+	ClientSvcUrl string `mapstructure:"CLIENT_SVC_URL"`
 }
 
 func LoadConfig(envPath string) (config Config, err error) {

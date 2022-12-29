@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package proto;
+option go_package = "../pb";
+// protoc -I=pb --go_out=pb  --go-grpc_out=pb  pb/client_service.proto
+
+
+message UserRes {
+    string err = 1;
+}
+
+service Users{
+    rpc UpdateUserInfo (UpdateUserInfoReq) returns (UserRes){}
+    rpc UpdateUserPass (UpdateUserPassReq) returns (UserRes){}
+    rpc DeleteUser (DeleteUserReq) returns (UserRes){}
+    rpc AddToBasket (AddToBasketReq) returns (UserRes){}
+}
+
+message UpdateUserInfoReq {
+    int32 id = 1;
+    string name = 2;
+    string number = 3;
+    string email = 4;
+    string dob = 5;
+    string address = 6;
+}
+
+message UpdateUserPassReq {
+    int32 id = 1;
+    string pass = 2;
+    string pass1 = 3;
+    string pass2 = 4;
+}
+
+message DeleteUserReq {
+    string login = 1;
+}
+
+message AddToBasketReq {
+    int32 user_id = 1;
+    int32 prod_id = 2;
+}

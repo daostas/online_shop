@@ -58,7 +58,7 @@ var GroupsTable = &groupsTableType{
 		Fields: []parse.FieldInfo{
 			{Name: "GroupID", Type: "int32", Column: "group_id"},
 			{Name: "ParentID", Type: "*int32", Column: "parent_id"},
-			{Name: "Photos", Type: "[]uint8", Column: "photos"},
+			{Name: "Photos", Type: "pq.StringArray", Column: "photos"},
 			{Name: "Status", Type: "bool", Column: "status"},
 		},
 		PKFieldIndex: 0,

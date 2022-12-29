@@ -19,10 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SettingServiceClient interface {
 	SetDefaultLanguage(ctx context.Context, in *SetDefaultLanguageReq, opts ...grpc.CallOption) (*SettRes, error)
-	FirstNewLanguage(ctx context.Context, in *NewLangReq, opts ...grpc.CallOption) (*SettRes, error)
-	NewLanguage(ctx context.Context, in *NewLangReq, opts ...grpc.CallOption) (*SettRes, error)
-	GetListOfLanguages(ctx context.Context, in *EmptySettReq, opts ...grpc.CallOption) (*GetListOfLanguagesRes, error)
-	ChangeLanguageStatus(ctx context.Context, in *ChangeLanguageStatusReq, opts ...grpc.CallOption) (*SettRes, error)
+	SetChangingParentStatus(ctx context.Context, in *EmptySettReq, opts ...grpc.CallOption) (*SettRes, error)
 }
 
 type settingServiceClient struct {
@@ -42,36 +39,9 @@ func (c *settingServiceClient) SetDefaultLanguage(ctx context.Context, in *SetDe
 	return out, nil
 }
 
-func (c *settingServiceClient) FirstNewLanguage(ctx context.Context, in *NewLangReq, opts ...grpc.CallOption) (*SettRes, error) {
+func (c *settingServiceClient) SetChangingParentStatus(ctx context.Context, in *EmptySettReq, opts ...grpc.CallOption) (*SettRes, error) {
 	out := new(SettRes)
-	err := c.cc.Invoke(ctx, "/proto.SettingService/FirstNewLanguage", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *settingServiceClient) NewLanguage(ctx context.Context, in *NewLangReq, opts ...grpc.CallOption) (*SettRes, error) {
-	out := new(SettRes)
-	err := c.cc.Invoke(ctx, "/proto.SettingService/NewLanguage", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *settingServiceClient) GetListOfLanguages(ctx context.Context, in *EmptySettReq, opts ...grpc.CallOption) (*GetListOfLanguagesRes, error) {
-	out := new(GetListOfLanguagesRes)
-	err := c.cc.Invoke(ctx, "/proto.SettingService/GetListOfLanguages", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *settingServiceClient) ChangeLanguageStatus(ctx context.Context, in *ChangeLanguageStatusReq, opts ...grpc.CallOption) (*SettRes, error) {
-	out := new(SettRes)
-	err := c.cc.Invoke(ctx, "/proto.SettingService/ChangeLanguageStatus", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.SettingService/SetChangingParentStatus", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -83,10 +53,7 @@ func (c *settingServiceClient) ChangeLanguageStatus(ctx context.Context, in *Cha
 // for forward compatibility
 type SettingServiceServer interface {
 	SetDefaultLanguage(context.Context, *SetDefaultLanguageReq) (*SettRes, error)
-	FirstNewLanguage(context.Context, *NewLangReq) (*SettRes, error)
-	NewLanguage(context.Context, *NewLangReq) (*SettRes, error)
-	GetListOfLanguages(context.Context, *EmptySettReq) (*GetListOfLanguagesRes, error)
-	ChangeLanguageStatus(context.Context, *ChangeLanguageStatusReq) (*SettRes, error)
+	SetChangingParentStatus(context.Context, *EmptySettReq) (*SettRes, error)
 	mustEmbedUnimplementedSettingServiceServer()
 }
 
@@ -97,17 +64,8 @@ type UnimplementedSettingServiceServer struct {
 func (UnimplementedSettingServiceServer) SetDefaultLanguage(context.Context, *SetDefaultLanguageReq) (*SettRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetDefaultLanguage not implemented")
 }
-func (UnimplementedSettingServiceServer) FirstNewLanguage(context.Context, *NewLangReq) (*SettRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FirstNewLanguage not implemented")
-}
-func (UnimplementedSettingServiceServer) NewLanguage(context.Context, *NewLangReq) (*SettRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method NewLanguage not implemented")
-}
-func (UnimplementedSettingServiceServer) GetListOfLanguages(context.Context, *EmptySettReq) (*GetListOfLanguagesRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetListOfLanguages not implemented")
-}
-func (UnimplementedSettingServiceServer) ChangeLanguageStatus(context.Context, *ChangeLanguageStatusReq) (*SettRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangeLanguageStatus not implemented")
+func (UnimplementedSettingServiceServer) SetChangingParentStatus(context.Context, *EmptySettReq) (*SettRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetChangingParentStatus not implemented")
 }
 func (UnimplementedSettingServiceServer) mustEmbedUnimplementedSettingServiceServer() {}
 
@@ -140,74 +98,20 @@ func _SettingService_SetDefaultLanguage_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SettingService_FirstNewLanguage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NewLangReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SettingServiceServer).FirstNewLanguage(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/proto.SettingService/FirstNewLanguage",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SettingServiceServer).FirstNewLanguage(ctx, req.(*NewLangReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SettingService_NewLanguage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NewLangReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SettingServiceServer).NewLanguage(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/proto.SettingService/NewLanguage",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SettingServiceServer).NewLanguage(ctx, req.(*NewLangReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SettingService_GetListOfLanguages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SettingService_SetChangingParentStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(EmptySettReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SettingServiceServer).GetListOfLanguages(ctx, in)
+		return srv.(SettingServiceServer).SetChangingParentStatus(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.SettingService/GetListOfLanguages",
+		FullMethod: "/proto.SettingService/SetChangingParentStatus",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SettingServiceServer).GetListOfLanguages(ctx, req.(*EmptySettReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SettingService_ChangeLanguageStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeLanguageStatusReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SettingServiceServer).ChangeLanguageStatus(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/proto.SettingService/ChangeLanguageStatus",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SettingServiceServer).ChangeLanguageStatus(ctx, req.(*ChangeLanguageStatusReq))
+		return srv.(SettingServiceServer).SetChangingParentStatus(ctx, req.(*EmptySettReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -224,20 +128,8 @@ var SettingService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SettingService_SetDefaultLanguage_Handler,
 		},
 		{
-			MethodName: "FirstNewLanguage",
-			Handler:    _SettingService_FirstNewLanguage_Handler,
-		},
-		{
-			MethodName: "NewLanguage",
-			Handler:    _SettingService_NewLanguage_Handler,
-		},
-		{
-			MethodName: "GetListOfLanguages",
-			Handler:    _SettingService_GetListOfLanguages_Handler,
-		},
-		{
-			MethodName: "ChangeLanguageStatus",
-			Handler:    _SettingService_ChangeLanguageStatus_Handler,
+			MethodName: "SetChangingParentStatus",
+			Handler:    _SettingService_SetChangingParentStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

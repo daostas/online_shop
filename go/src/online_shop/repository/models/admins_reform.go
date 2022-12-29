@@ -29,7 +29,9 @@ func (v *adminsTableType) Name() string {
 func (v *adminsTableType) Columns() []string {
 	return []string{
 		"admin_id",
+		"login",
 		"password",
+		"role",
 	}
 }
 
@@ -55,7 +57,9 @@ var AdminsTable = &adminsTableType{
 		SQLName: "admins",
 		Fields: []parse.FieldInfo{
 			{Name: "AdminID", Type: "int32", Column: "admin_id"},
+			{Name: "Login", Type: "string", Column: "login"},
 			{Name: "Password", Type: "string", Column: "password"},
+			{Name: "Role", Type: "string", Column: "role"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -64,9 +68,11 @@ var AdminsTable = &adminsTableType{
 
 // String returns a string representation of this struct or record.
 func (s Admins) String() string {
-	res := make([]string, 2)
+	res := make([]string, 4)
 	res[0] = "AdminID: " + reform.Inspect(s.AdminID, true)
-	res[1] = "Password: " + reform.Inspect(s.Password, true)
+	res[1] = "Login: " + reform.Inspect(s.Login, true)
+	res[2] = "Password: " + reform.Inspect(s.Password, true)
+	res[3] = "Role: " + reform.Inspect(s.Role, true)
 	return strings.Join(res, ", ")
 }
 
@@ -75,7 +81,9 @@ func (s Admins) String() string {
 func (s *Admins) Values() []interface{} {
 	return []interface{}{
 		s.AdminID,
+		s.Login,
 		s.Password,
+		s.Role,
 	}
 }
 
@@ -84,7 +92,9 @@ func (s *Admins) Values() []interface{} {
 func (s *Admins) Pointers() []interface{} {
 	return []interface{}{
 		&s.AdminID,
+		&s.Login,
 		&s.Password,
+		&s.Role,
 	}
 }
 

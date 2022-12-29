@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
+	"online_shop/api-gw/auth"
 	"online_shop/api-gw/config"
-	"online_shop/api-gw/user"
+	_ "online_shop/api-gw/docs"
 	"os"
 
 	"github.com/iris-contrib/middleware/cors"
@@ -26,7 +27,7 @@ import (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host localhost:9012
+// @host oneshop.positiv.kz:9012
 // @BasePath /
 
 // @securityDefinitions.apikey BearerAuth
@@ -61,17 +62,17 @@ func main() {
 
 	//SWAGGER
 	swaggerUI := swagger.Handler(swaggerFiles.Handler,
-		swagger.URL("localhost:9012/swagger/doc.json"),
+		swagger.URL("http://oneshop.positiv.kz:9012/swagger/doc.json"),
 		swagger.DeepLinking(true),
 		swagger.Prefix("/swagger"),
 	)
 	app.Get("/swagger", swaggerUI)
 	app.Get("/swagger/{any:path}", swaggerUI)
 
-	part := mvc.New(app.Party("/user", c).AllowMethods(iris.MethodOptions))
-	user.SetupUser(part, &cfg)
+	part := mvc.New(app.Party("/auth", c, auth.InitAuthMiddleware(&cfg, app.Logger())).AllowMethods(iris.MethodOptions))
+	auth.SetupAuth(part, &cfg)
 
-	app.Logger().Println("API_GW on", cfg.Port)
+	app.Logger().Println("API_GW on", cfg.Port, "\n")
 	fmt.Printf("Api-gw started on port %s", cfg.Port)
 	err = app.Listen(cfg.Port)
 	if err != nil {

@@ -15,10 +15,10 @@
         },
         "version": "1.0"
     },
-    "host": "localhost:9012",
+    "host": "oneshop.positiv.kz:9012",
     "basePath": "/",
     "paths": {
-        "/user/login": {
+        "/auth/login/by/email": {
             "post": {
                 "security": [
                     {
@@ -32,7 +32,7 @@
                 "tags": [
                     "user"
                 ],
-                "summary": "Аутенфикации пользователя",
+                "summary": "Аутенфикации пользователя по почте",
                 "parameters": [
                     {
                         "description": " ",
@@ -48,7 +48,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/pb.UserRes"
+                            "$ref": "#/definitions/pb.SignInRes"
                         }
                     },
                     "500": {
@@ -60,7 +60,49 @@
                 }
             }
         },
-        "/user/reguster/user": {
+        "/auth/login/by/num": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Аутенфикации пользователя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Аутенфикации пользователя по номеру телефона",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pb.SignInReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pb.SignInRes"
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register/user": {
             "post": {
                 "security": [
                     {
@@ -82,7 +124,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/pb.RegUserReq"
+                            "$ref": "#/definitions/pb.RegReq"
                         }
                     }
                 ],
@@ -90,7 +132,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/pb.UserRes"
+                            "$ref": "#/definitions/pb.AuthRes"
                         }
                     },
                     "500": {
@@ -104,7 +146,15 @@
         }
     },
     "definitions": {
-        "pb.RegUserReq": {
+        "pb.AuthRes": {
+            "type": "object",
+            "properties": {
+                "err": {
+                    "type": "string"
+                }
+            }
+        },
+        "pb.RegReq": {
             "type": "object",
             "properties": {
                 "login": {
@@ -126,10 +176,16 @@
                 }
             }
         },
-        "pb.UserRes": {
+        "pb.SignInRes": {
             "type": "object",
             "properties": {
                 "err": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "token": {
                     "type": "string"
                 }
             }

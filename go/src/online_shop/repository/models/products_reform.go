@@ -40,6 +40,7 @@ func (v *productsTableType) Columns() []string {
 		"amount",
 		"rating",
 		"curreunt_discount",
+		"status",
 	}
 }
 
@@ -72,10 +73,11 @@ var ProductsTable = &productsTableType{
 			{Name: "Jan", Type: "*string", Column: "jan"},
 			{Name: "Usbn", Type: "*string", Column: "usbn"},
 			{Name: "Mpn", Type: "*string", Column: "mpn"},
-			{Name: "Photos", Type: "[]uint8", Column: "photos"},
+			{Name: "Photos", Type: "pq.StringArray", Column: "photos"},
 			{Name: "Amount", Type: "*int32", Column: "amount"},
 			{Name: "Rating", Type: "*float64", Column: "rating"},
 			{Name: "CurreuntDiscount", Type: "*int32", Column: "curreunt_discount"},
+			{Name: "Status", Type: "bool", Column: "status"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -84,7 +86,7 @@ var ProductsTable = &productsTableType{
 
 // String returns a string representation of this struct or record.
 func (s Products) String() string {
-	res := make([]string, 12)
+	res := make([]string, 13)
 	res[0] = "ProductID: " + reform.Inspect(s.ProductID, true)
 	res[1] = "ParentID: " + reform.Inspect(s.ParentID, true)
 	res[2] = "Model: " + reform.Inspect(s.Model, true)
@@ -97,6 +99,7 @@ func (s Products) String() string {
 	res[9] = "Amount: " + reform.Inspect(s.Amount, true)
 	res[10] = "Rating: " + reform.Inspect(s.Rating, true)
 	res[11] = "CurreuntDiscount: " + reform.Inspect(s.CurreuntDiscount, true)
+	res[12] = "Status: " + reform.Inspect(s.Status, true)
 	return strings.Join(res, ", ")
 }
 
@@ -116,6 +119,7 @@ func (s *Products) Values() []interface{} {
 		s.Amount,
 		s.Rating,
 		s.CurreuntDiscount,
+		s.Status,
 	}
 }
 
@@ -135,6 +139,7 @@ func (s *Products) Pointers() []interface{} {
 		&s.Amount,
 		&s.Rating,
 		&s.CurreuntDiscount,
+		&s.Status,
 	}
 }
 

@@ -1,14 +1,18 @@
-.PHONY: all prod-svc user-svc setting-svc api-gw proto run stop debug-api
+.PHONY: all admin-svc client-svc setting-svc api-gw auth-svc proto run stop debug-api
 proto:
-	protoc  --proto_path=prod-svc/pb/ --go_out=./prod-svc --go-grpc_out=./prod-svc/prod_service.proto
-	protoc  --proto_path=user-svc/pb/ --go_out=./user-svc --go-grpc_out=./user-svc/user_service.proto
+	protoc  --proto_path=admin-svc/pb/ --go_out=./admin-svc --go-grpc_out=./admin-svc/admin_service.proto
+	protoc  --proto_path=client-svc/pb/ --go_out=./client-svc --go-grpc_out=./client-svc/client_service.proto
 	protoc  --proto_path=setting-svc/pb/ --go_out=./setting-svc --go-grpc_out=./setting-svc/setting_service.proto
+	protoc  --proto_path=auth-svc/pb/ --go_out=./auth-svc --go-grpc_out=./auth-svc/auth_service.proto
 
-prod-svc:
-	 go build -o ./prod-svc/prod-svc ./prod-svc/main.go
+auth-svc:
+	 go build -o ./auth-svc/auth2-svc ./auth-svc/main.go
 
-user-svc:
-	 go build -o ./user-svc/user-svc ./user-svc/main.go
+admin-svc:
+	 go build -o ./admin-svc/admin-svc ./admin-svc/main.go
+
+client-svc:
+	 go build -o ./client-svc/client-svc ./client-svc/main.go
 
 setting-svc:
 	 go build -o ./setting-svc/setting-svc ./setting-svc/main.go
@@ -17,16 +21,17 @@ setting-svc:
 api-gw:
 	 go build -o ./api-gw/api-shop ./api-gw/main.go
 
-all: prod-svc user-svc setting-svc api-gw
+all: admin-svc client-svc setting-svc api-gw auth-svc
 
 run:
-	./prod-svc/prod-svc &
-	./user-svc/user-svc &
+	./admin-svc/admin-svc &
+	./client-svc/client-svc &
 	./setting-svc/setting-svc &
+	./auth-svc/auth2-svc &
 	./api-gw/api-shop &
 
 debug-api:
 	 dlv debug --headless --listen=:2345 --api-version=2 --accept-multiclient ./api-gw/main.go --check-go-version=false
 
 stop:
-	killall -q -w -s SIGTERM api-shop user-svc prod-svc setting-svc
+	killall -q -w -s SIGTERM api-shop client-svc admin-svc setting-svc auth2-svc

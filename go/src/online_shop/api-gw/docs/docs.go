@@ -25,7 +25,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/user/login": {
+        "/auth/login/by/email": {
             "post": {
                 "security": [
                     {
@@ -39,7 +39,7 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Аутенфикации пользователя",
+                "summary": "Аутенфикации пользователя по почте",
                 "parameters": [
                     {
                         "description": " ",
@@ -55,7 +55,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/pb.UserRes"
+                            "$ref": "#/definitions/pb.SignInRes"
                         }
                     },
                     "500": {
@@ -67,7 +67,49 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/reguster/user": {
+        "/auth/login/by/num": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Аутенфикации пользователя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Аутенфикации пользователя по номеру телефона",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pb.SignInReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pb.SignInRes"
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register/user": {
             "post": {
                 "security": [
                     {
@@ -89,7 +131,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/pb.RegUserReq"
+                            "$ref": "#/definitions/pb.RegReq"
                         }
                     }
                 ],
@@ -97,7 +139,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/pb.UserRes"
+                            "$ref": "#/definitions/pb.AuthRes"
                         }
                     },
                     "500": {
@@ -111,7 +153,15 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "pb.RegUserReq": {
+        "pb.AuthRes": {
+            "type": "object",
+            "properties": {
+                "err": {
+                    "type": "string"
+                }
+            }
+        },
+        "pb.RegReq": {
             "type": "object",
             "properties": {
                 "login": {
@@ -133,10 +183,16 @@ const docTemplate = `{
                 }
             }
         },
-        "pb.UserRes": {
+        "pb.SignInRes": {
             "type": "object",
             "properties": {
                 "err": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "token": {
                     "type": "string"
                 }
             }
@@ -154,7 +210,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:9012",
+	Host:             "oneshop.positiv.kz:9012",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Quick Shop API",

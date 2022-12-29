@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package proto;
+option go_package = "../pb";
+// protoc -I=pb --go_out=pb  --go-grpc_out=pb  pb/auth_service.proto
+
+message AuthRes{
+    string err = 1;
+}
+
+service Auth{
+    rpc GetUser (GetReq) returns (AuthRes){}
+    rpc GetAdmin (GetReq) returns (AuthRes){}
+    rpc RegisterUser (RegReq) returns (AuthRes){}
+    rpc SignInUser (SignInReq) returns (SignInRes){}
+    rpc Validate(ValidateReq) returns (ValidateRes) {}
+    rpc RegisterMainAdmin (RegReqAdmin) returns (AuthRes){}
+    rpc RegisterAdmin (RegReqAdmin) returns (AuthRes){}
+}
+
+message RegReq {
+    string login = 1;
+    string password = 2;
+}
+
+message SignInReq {
+    string login = 1;
+    string password = 2;
+}
+
+message SignInRes {
+    int32 status = 1;
+    string err = 2;
+    string token = 3;
+}
+
+message RegReqAdmin {
+    string login = 1;
+    string password = 2;
+    string role = 3;
+}
+
+message ValidateReq {
+    string token = 1;
+  }
+  
+  message ValidateRes {
+    int32 status = 1;
+    string error = 2;
+    int32 userId = 3;
+    string role = 4;
+  }
+
+message GetReq{
+    int32 id = 1;
+}
+
+message GetRes {
+    int32 id = 1;
+}

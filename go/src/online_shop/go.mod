@@ -3,9 +3,11 @@ module online_shop
 go 1.18
 
 require (
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/iris-contrib/middleware/cors v0.0.0-20220921193907-d3e7dfb17c8f
 	github.com/kataras/iris/v12 v12.2.0-beta6
 	github.com/lib/pq v1.8.0
+	github.com/swaggo/swag v1.8.7
 	golang.org/x/crypto v0.1.0
 	google.golang.org/grpc v1.50.1
 	google.golang.org/protobuf v1.28.1
@@ -29,6 +31,7 @@ require (
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/iris-contrib/go.uuid v2.0.0+incompatible // indirect
+	github.com/kataras/jwt v0.1.8 // indirect
 	github.com/kataras/neffos v0.0.20 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mediocregopher/radix/v3 v3.8.0 // indirect
@@ -43,7 +46,6 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
-	github.com/swaggo/swag v1.8.7 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/tools v0.1.12 // indirect
 	golang.org/x/xerrors v0.0.0-20220517211312-f3a8303e98df // indirect

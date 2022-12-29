@@ -1,6 +1,11 @@
 basePath: /
 definitions:
-  pb.RegUserReq:
+  pb.AuthRes:
+    properties:
+      err:
+        type: string
+    type: object
+  pb.RegReq:
     properties:
       login:
         type: string
@@ -14,12 +19,16 @@ definitions:
       password:
         type: string
     type: object
-  pb.UserRes:
+  pb.SignInRes:
     properties:
       err:
         type: string
+      status:
+        type: integer
+      token:
+        type: string
     type: object
-host: localhost:9012
+host: oneshop.positiv.kz:9012
 info:
   contact:
     email: info@positiv.kz
@@ -33,7 +42,7 @@ info:
   title: Quick Shop API
   version: "1.0"
 paths:
-  /user/login:
+  /auth/login/by/email:
     post:
       description: Аутенфикации пользователя
       parameters:
@@ -49,17 +58,43 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/pb.UserRes'
+            $ref: '#/definitions/pb.SignInRes'
         "500":
           description: error
           schema:
             type: string
       security:
       - BearerAuth: []
-      summary: Аутенфикации пользователя
+      summary: Аутенфикации пользователя по почте
       tags:
       - user
-  /user/reguster/user:
+  /auth/login/by/num:
+    post:
+      description: Аутенфикации пользователя
+      parameters:
+      - description: ' '
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/pb.SignInReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pb.SignInRes'
+        "500":
+          description: error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Аутенфикации пользователя по номеру телефона
+      tags:
+      - user
+  /auth/register/user:
     post:
       description: Регистрация пользователя
       parameters:
@@ -68,14 +103,14 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/pb.RegUserReq'
+          $ref: '#/definitions/pb.RegReq'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/pb.UserRes'
+            $ref: '#/definitions/pb.AuthRes'
         "500":
           description: error
           schema:
