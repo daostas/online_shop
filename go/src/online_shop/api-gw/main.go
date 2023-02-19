@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
+	"online_shop/api-gw/admin"
 	"online_shop/api-gw/auth"
+	"online_shop/api-gw/client"
 	"online_shop/api-gw/config"
 	_ "online_shop/api-gw/docs"
 	"os"
@@ -71,6 +73,10 @@ func main() {
 
 	part := mvc.New(app.Party("/auth", c, auth.InitAuthMiddleware(&cfg, app.Logger())).AllowMethods(iris.MethodOptions))
 	auth.SetupAuth(part, &cfg)
+	part = mvc.New(app.Party("/admin", c, auth.InitAuthMiddleware(&cfg, app.Logger())).AllowMethods(iris.MethodOptions))
+	admin.SetupAdmin(part, &cfg)
+	part = mvc.New(app.Party("/client", c, auth.InitAuthMiddleware(&cfg, app.Logger())).AllowMethods(iris.MethodOptions))
+	client.SetupClient(part, &cfg)
 
 	app.Logger().Println("API_GW on", cfg.Port, "\n")
 	fmt.Printf("Api-gw started on port %s", cfg.Port)

@@ -5,18 +5,17 @@ option go_package = "../pb";
 // protoc -I=pb --go_out=pb  --go-grpc_out=pb  pb/client_service.proto
 
 
-message UserRes {
+message ClientRes {
     string err = 1;
 }
 
-service Users{
-    rpc UpdateUserInfo (UpdateUserInfoReq) returns (UserRes){}
-    rpc UpdateUserPass (UpdateUserPassReq) returns (UserRes){}
-    rpc DeleteUser (DeleteUserReq) returns (UserRes){}
-    rpc AddToBasket (AddToBasketReq) returns (UserRes){}
+service Clients{
+    rpc UpdateClientInfo (UpdateClientInfoReq) returns (ClientRes){}
+    rpc UpdateClientPass (UpdateClientPassReq) returns (ClientRes){}
+    rpc DeleteClient (DeleteClientReq) returns (ClientRes){}
 }
 
-message UpdateUserInfoReq {
+message UpdateClientInfoReq {
     int32 id = 1;
     string name = 2;
     string number = 3;
@@ -25,18 +24,41 @@ message UpdateUserInfoReq {
     string address = 6;
 }
 
-message UpdateUserPassReq {
+message UpdateClientPassReq {
     int32 id = 1;
     string pass = 2;
     string pass1 = 3;
     string pass2 = 4;
 }
 
-message DeleteUserReq {
+message DeleteClientReq {
     string login = 1;
 }
 
 message AddToBasketReq {
-    int32 user_id = 1;
+    int32 Client_id = 1;
     int32 prod_id = 2;
+}
+
+
+service ClientGroups{
+    rpc GetGroups (GetGroupsReq) returns (GetGroupsRes){}
+}
+
+message GetGroupsReq{ 
+    int32 group_id = 1; 
+    int32 language_id = 2;
+}
+
+message GetGroupsRes{
+    message Group{
+        int32 group_id = 1;
+        string title = 2;
+        string description = 3;
+    }
+
+    repeated Group groups = 1;
+    int32 status = 2;
+    string err = 3;
+
 }

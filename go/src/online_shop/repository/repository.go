@@ -65,8 +65,10 @@ func NewFavourite(user_id int32) *models.Favourites {
 
 func NewProducer(photos pq.StringArray, status bool) *models.Producers {
 	return &models.Producers{
-		Photos: photos,
-		Status: status,
+		Photos:    photos,
+		Status:    status,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 }
 
@@ -116,6 +118,8 @@ func NewProduct(parent_id *int32, model, sku, upc, jan, usbn, mpn string, photos
 		Rating:           rating,
 		CurreuntDiscount: discount,
 		Status:           status,
+		CreatedAt:        time.Now(),
+		UpdatedAt:        time.Now(),
 	}
 }
 
@@ -146,10 +150,13 @@ func NewLocalizaionForGroups(group_id int32, lang_id int32, title, description s
 	}
 }
 
-func NewGroup(parent_id *int32, photos pq.StringArray, status bool) *models.Groups {
+func NewGroup(parent_id *int32, photos pq.StringArray, status bool, sort_order int32, created_at time.Time, updated_at time.Time) *models.Groups {
 	return &models.Groups{
-		ParentID: parent_id,
-		Photos:   photos,
-		Status:   status,
+		ParentID:  parent_id,
+		Photos:    photos,
+		Status:    status,
+		SortOrder: sort_order,
+		CreatedAt: created_at,
+		UpdatedAt: updated_at,
 	}
 }

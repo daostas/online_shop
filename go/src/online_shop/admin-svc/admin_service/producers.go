@@ -7,6 +7,7 @@ import (
 	"online_shop/admin-svc/pb"
 	rep "online_shop/repository"
 	"online_shop/repository/models"
+	st "online_shop/status"
 	"strconv"
 	"strings"
 
@@ -29,7 +30,9 @@ func NewProducersServer(db *reform.DB, cfg *config.Config) *ProducersServer {
 func (s *ProducersServer) RegisterProducer(ctx context.Context, req *pb.RegProducerReq) (*pb.AdminRes, error) {
 	tr, err := s.Db.Begin()
 	if err != nil {
-		return &pb.AdminRes{Err: "error in begining of the transaction"}, nil
+		return &pb.AdminRes{
+			Status: st.StatusInternalServerError,
+			Err:    "error in begining of the transaction: " + fmt.Sprint(err)}, nil
 	}
 
 	producer := rep.NewProducer(req.Photos, req.Status)
@@ -37,7 +40,9 @@ func (s *ProducersServer) RegisterProducer(ctx context.Context, req *pb.RegProdu
 	err = tr.Insert(producer)
 	if err != nil {
 		tr.Rollback()
-		return &pb.AdminRes{Err: "error in inserting data into producers table"}, nil
+		return &pb.AdminRes{
+			Status: st.StatusInternalServerError,
+			Err:    "error in inserting data into producers table: " + fmt.Sprint(err)}, nil
 	}
 
 	var warn bool = false
@@ -45,7 +50,9 @@ func (s *ProducersServer) RegisterProducer(ctx context.Context, req *pb.RegProdu
 	for key, value := range req.Localizations {
 		num, err := strconv.Atoi(key)
 		if err != nil {
-			return &pb.AdminRes{Err: "invalid data"}, nil
+			return &pb.AdminRes{
+				Status: st.StatusInvalidData,
+				Err:    "invalid data: " + fmt.Sprint(err)}, nil
 		}
 
 		_, err = s.Db.SelectOneFrom(models.ProducersLocalizationView, "where title = $1", value.Title)
@@ -57,16 +64,22 @@ func (s *ProducersServer) RegisterProducer(ctx context.Context, req *pb.RegProdu
 		err = tr.Insert(loc)
 		if err != nil {
 			tr.Rollback()
-			return &pb.AdminRes{Err: "error in inserting data into producers localization table"}, nil
+			return &pb.AdminRes{
+				Status: st.StatusInternalServerError,
+				Err:    "error in inserting data into producers localization table: " + fmt.Sprint(err)}, nil
 		}
 	}
 
 	tr.Commit()
 	if warn {
-		return &pb.AdminRes{Err: "success, but producer with this name already exist"}, nil
+		return &pb.AdminRes{
+			Status: st.StatusOkWithWarning,
+			Err:    "success, but producer with this name already exist"}, nil
 
 	}
-	return &pb.AdminRes{Err: "success"}, nil
+	return &pb.AdminRes{
+		Status: st.StatusOK,
+		Err:    "success"}, nil
 }
 
 func (s *ProducersServer) GetListOfProducers(ctx context.Context, req *pb.EmptyAdminReq) (*pb.GetListOfProducersRes, error) {

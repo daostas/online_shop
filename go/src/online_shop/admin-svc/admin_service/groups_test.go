@@ -3,7 +3,6 @@ package admin_service
 import (
 	"context"
 	"log"
-	"net"
 	"online_shop/admin-svc/config"
 	"online_shop/admin-svc/pb"
 	"online_shop/repository"
@@ -20,15 +19,7 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 )
 
-const bufSize = 1024 * 1024
-
-var lis *bufconn.Listener
-
-func bufDialer(context.Context, string) (net.Conn, error) {
-	return lis.Dial()
-}
-
-func TestAdminService(t *testing.T) {
+func TestGroups(t *testing.T) {
 
 	lis = bufconn.Listen(bufSize)
 	s := grpc.NewServer()
@@ -66,10 +57,10 @@ func TestAdminService(t *testing.T) {
 	}
 	defer conn.Close()
 
-	client1 := pb.NewProducersClient(conn)
-	client2 := pb.NewLanguagesClient(conn)
+	language_client := pb.NewLanguagesClient(conn)
+	group_client := pb.NewAdminGroupsClient(conn)
 
-	t.Run("RP1", func(t *testing.T) {
+	t.Run("RegisterGroup1", func(t *testing.T) {
 
 		settcfg, err := settcfg.LoadConfig("../../setting-svc/config")
 		if err != nil {
@@ -89,7 +80,7 @@ func TestAdminService(t *testing.T) {
 			},
 		}
 
-		client2.NewLanguage(ctx, req)
+		language_client.NewLanguage(ctx, req)
 		nl, _ := settsrv.Db.SelectOneFrom(models.LanguagesTable, "where lang_name = $1", req.Language.LangName)
 		settreq := &settpb.SetDefaultLanguageReq{
 			LangId: nl.(*models.Languages).LangID,
@@ -111,25 +102,41 @@ func TestAdminService(t *testing.T) {
 			m[strconv.Itoa(int(langs[i].(*models.Languages).LangID))] = &pb.Localization{Title: langs[i].(*models.Languages).LangName, Description: langs[i].(*models.Languages).LangName}
 		}
 
-		req2 := &pb.RegProducerReq{
+		req2 := &pb.RegGroupReq{
+			SortOrder:     1,
 			Photos:        photos,
+			Status:        true,
 			Localizations: m,
 		}
-		res, _ := client1.RegisterProducer(ctx, req2)
+
+		res, _ := group_client.RegisterGroup(ctx, req2)
 		if res.Err != "success" {
-			t.Errorf("RegisterProducerTest1 failed: %v", res.Err)
+			t.Errorf("RegisterGroupTest1 failed: %v", res.Err)
 		}
 
 	})
 
-	t.Run("GLOP1", func(t *testing.T) {
+	t.Run("GetListOfGroups", func(t *testing.T) {
 
-		req := &pb.EmptyAdminReq{}
-
-		res, _ := client1.GetListOfProducers(ctx, req)
-		if res.Err != "success" {
-			t.Errorf("GetListOfProducers failed: %v", res.Err)
+		type Search struct {
+			Value string
+			Regex bool
 		}
+		type Column struct {
+			Data       string
+			Name       string
+			Searchable bool
+			Orderable  bool
+			Search     Search
+		}
+
+	})
+
+	t.Run("DeleteAll", func(t *testing.T) {
+
+		groupsrv.Db.DeleteFrom(models.GroupsLocalizationView, "where group_id > 0")
+		groupsrv.Db.DeleteFrom(models.GroupsTable, "where group_id > 0")
+
 	})
 
 	if err := SqlDB.Close(); err != nil {

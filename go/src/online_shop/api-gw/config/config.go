@@ -4,6 +4,8 @@ import "github.com/spf13/viper"
 
 type Config struct {
 	Port         string `mapstructure:"PORT"`
+	AuthSvcUrl   string `mapstructure:"AUTH_SVC_URL"`
+	AdminSvcUrl  string `mapstructure:"ADMIN_SVC_URL"`
 	ClientSvcUrl string `mapstructure:"CLIENT_SVC_URL"`
 }
 

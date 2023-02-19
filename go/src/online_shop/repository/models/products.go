@@ -1,6 +1,10 @@
 package models
 
-import "github.com/lib/pq"
+import (
+	"time"
+
+	"github.com/lib/pq"
+)
 
 //go:generate reform
 
@@ -21,4 +25,6 @@ type Products struct {
 	Rating           *float64       `reform:"rating"`
 	CurreuntDiscount *int32         `reform:"curreunt_discount"`
 	Status           bool           `reform:"status"`
+	CreatedAt        time.Time      `reform:"created_at"` // FIXME unhandled database type "timestamp without time zone"
+	UpdatedAt        time.Time      `reform:"updated_at"` // FIXME unhandled database type "timestamp without time zone"
 }

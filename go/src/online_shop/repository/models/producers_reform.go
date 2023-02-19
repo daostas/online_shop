@@ -31,6 +31,8 @@ func (v *producersTableType) Columns() []string {
 		"producer_id",
 		"photos",
 		"status",
+		"created_at",
+		"updated_at",
 	}
 }
 
@@ -58,6 +60,8 @@ var ProducersTable = &producersTableType{
 			{Name: "ProducerID", Type: "int32", Column: "producer_id"},
 			{Name: "Photos", Type: "pq.StringArray", Column: "photos"},
 			{Name: "Status", Type: "bool", Column: "status"},
+			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
+			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -66,10 +70,12 @@ var ProducersTable = &producersTableType{
 
 // String returns a string representation of this struct or record.
 func (s Producers) String() string {
-	res := make([]string, 3)
+	res := make([]string, 5)
 	res[0] = "ProducerID: " + reform.Inspect(s.ProducerID, true)
 	res[1] = "Photos: " + reform.Inspect(s.Photos, true)
 	res[2] = "Status: " + reform.Inspect(s.Status, true)
+	res[3] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[4] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -80,6 +86,8 @@ func (s *Producers) Values() []interface{} {
 		s.ProducerID,
 		s.Photos,
 		s.Status,
+		s.CreatedAt,
+		s.UpdatedAt,
 	}
 }
 
@@ -90,6 +98,8 @@ func (s *Producers) Pointers() []interface{} {
 		&s.ProducerID,
 		&s.Photos,
 		&s.Status,
+		&s.CreatedAt,
+		&s.UpdatedAt,
 	}
 }
 

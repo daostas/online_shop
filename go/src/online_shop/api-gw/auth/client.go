@@ -11,7 +11,7 @@ import (
 
 func InitAuthClient(c *config.Config) (pb.AuthClient, error) {
 	// using WithInsecure() because no SSL running
-	cc, err := grpc.Dial(c.ClientSvcUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	cc, err := grpc.Dial(c.AuthSvcUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}

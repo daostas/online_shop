@@ -44,8 +44,8 @@ func main() {
 	pb.RegisterProducersServer(s, producersrv)
 	productsrv := admin_service.NewProductsServer(Db, &cfg)
 	pb.RegisterProductsServer(s, productsrv)
-	groupsrv := admin_service.NewGroupsServer(Db, &cfg)
-	pb.RegisterGroupsServer(s, groupsrv)
+	groupsrv := admin_service.NewAdminGroupsServer(Db, &cfg)
+	pb.RegisterAdminGroupsServer(s, groupsrv)
 	langsrv := admin_service.NewLanguagesServer(Db, &cfg)
 	pb.RegisterLanguagesServer(s, langsrv)
 

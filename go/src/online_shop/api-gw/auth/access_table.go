@@ -1,9 +1,12 @@
 package auth
 
 var accessTable = map[string][]string{
-	"POST/auth/register/user":  {"ROLE_CLIENT", "ANONYMOUS"},
-	"POST/auth/register/admin": {"ROLE_ADMIN"},
-	"POST/auth/login":          {"ROLE_CLIENT", "ANONYMOUS"},
+	"POST/auth/register/user":    {"ROLE_CLIENT", "ANONYMOUS"},
+	"POST/auth/register/admin":   {"ROLE_MAIN_ADMIN"},
+	"POST/auth/login/user":       {"ROLE_CLIENT", "ANONYMOUS"},
+	"POST/auth/login/admin":      {"ROLE_MAIN_ADMIN", "ROLE_ADMIN", "ANONYMOUS"},
+	"POST/admin/register/groups": {"ROLE_MAIN_ADMIN", "ROLE_ADMIN"},
+	"POST/admin/get/list/groups": {"ROLE_MAIN_ADMIN", "ROLE_ADMIN"},
 }
 
 func isAnonymous(method string, path string) bool {

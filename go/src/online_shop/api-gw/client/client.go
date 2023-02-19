@@ -9,11 +9,20 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func InitUsersClient(c *config.Config) (pb.UsersClient, error) {
+func InitClientsClient(c *config.Config) (pb.ClientsClient, error) {
 	// using WithInsecure() because no SSL running
 	cc, err := grpc.Dial(c.ClientSvcUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
-	return pb.NewUsersClient(cc), nil
+	return pb.NewClientsClient(cc), nil
+}
+
+func InitClientGroupsClient(c *config.Config) (pb.ClientGroupsClient, error) {
+	// using WithInsecure() because no SSL running
+	cc, err := grpc.Dial(c.ClientSvcUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, err
+	}
+	return pb.NewClientGroupsClient(cc), nil
 }

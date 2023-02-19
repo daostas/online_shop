@@ -176,11 +176,9 @@ var Producers_ServiceDesc = grpc.ServiceDesc{
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProductsClient interface {
-	RegisterParentProduct(ctx context.Context, in *RegParentProductReq, opts ...grpc.CallOption) (*AdminRes, error)
 	RegisterProduct(ctx context.Context, in *RegProductReq, opts ...grpc.CallOption) (*AdminRes, error)
-	GetListOfProducts(ctx context.Context, in *EmptyAdminReq, opts ...grpc.CallOption) (*GetListOfProductsRes, error)
+	GetListOfProducts(ctx context.Context, in *DataTableReq, opts ...grpc.CallOption) (*DataTableRes, error)
 	ChangeProductsStatus(ctx context.Context, in *ChangeStatusReq, opts ...grpc.CallOption) (*AdminRes, error)
-	ChangeParentProductsStatus(ctx context.Context, in *ChangeStatusReq, opts ...grpc.CallOption) (*AdminRes, error)
 }
 
 type productsClient struct {
@@ -189,15 +187,6 @@ type productsClient struct {
 
 func NewProductsClient(cc grpc.ClientConnInterface) ProductsClient {
 	return &productsClient{cc}
-}
-
-func (c *productsClient) RegisterParentProduct(ctx context.Context, in *RegParentProductReq, opts ...grpc.CallOption) (*AdminRes, error) {
-	out := new(AdminRes)
-	err := c.cc.Invoke(ctx, "/proto.Products/RegisterParentProduct", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *productsClient) RegisterProduct(ctx context.Context, in *RegProductReq, opts ...grpc.CallOption) (*AdminRes, error) {
@@ -209,8 +198,8 @@ func (c *productsClient) RegisterProduct(ctx context.Context, in *RegProductReq,
 	return out, nil
 }
 
-func (c *productsClient) GetListOfProducts(ctx context.Context, in *EmptyAdminReq, opts ...grpc.CallOption) (*GetListOfProductsRes, error) {
-	out := new(GetListOfProductsRes)
+func (c *productsClient) GetListOfProducts(ctx context.Context, in *DataTableReq, opts ...grpc.CallOption) (*DataTableRes, error) {
+	out := new(DataTableRes)
 	err := c.cc.Invoke(ctx, "/proto.Products/GetListOfProducts", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -227,24 +216,13 @@ func (c *productsClient) ChangeProductsStatus(ctx context.Context, in *ChangeSta
 	return out, nil
 }
 
-func (c *productsClient) ChangeParentProductsStatus(ctx context.Context, in *ChangeStatusReq, opts ...grpc.CallOption) (*AdminRes, error) {
-	out := new(AdminRes)
-	err := c.cc.Invoke(ctx, "/proto.Products/ChangeParentProductsStatus", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // ProductsServer is the server API for Products service.
 // All implementations must embed UnimplementedProductsServer
 // for forward compatibility
 type ProductsServer interface {
-	RegisterParentProduct(context.Context, *RegParentProductReq) (*AdminRes, error)
 	RegisterProduct(context.Context, *RegProductReq) (*AdminRes, error)
-	GetListOfProducts(context.Context, *EmptyAdminReq) (*GetListOfProductsRes, error)
+	GetListOfProducts(context.Context, *DataTableReq) (*DataTableRes, error)
 	ChangeProductsStatus(context.Context, *ChangeStatusReq) (*AdminRes, error)
-	ChangeParentProductsStatus(context.Context, *ChangeStatusReq) (*AdminRes, error)
 	mustEmbedUnimplementedProductsServer()
 }
 
@@ -252,20 +230,14 @@ type ProductsServer interface {
 type UnimplementedProductsServer struct {
 }
 
-func (UnimplementedProductsServer) RegisterParentProduct(context.Context, *RegParentProductReq) (*AdminRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RegisterParentProduct not implemented")
-}
 func (UnimplementedProductsServer) RegisterProduct(context.Context, *RegProductReq) (*AdminRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterProduct not implemented")
 }
-func (UnimplementedProductsServer) GetListOfProducts(context.Context, *EmptyAdminReq) (*GetListOfProductsRes, error) {
+func (UnimplementedProductsServer) GetListOfProducts(context.Context, *DataTableReq) (*DataTableRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetListOfProducts not implemented")
 }
 func (UnimplementedProductsServer) ChangeProductsStatus(context.Context, *ChangeStatusReq) (*AdminRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeProductsStatus not implemented")
-}
-func (UnimplementedProductsServer) ChangeParentProductsStatus(context.Context, *ChangeStatusReq) (*AdminRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangeParentProductsStatus not implemented")
 }
 func (UnimplementedProductsServer) mustEmbedUnimplementedProductsServer() {}
 
@@ -278,24 +250,6 @@ type UnsafeProductsServer interface {
 
 func RegisterProductsServer(s grpc.ServiceRegistrar, srv ProductsServer) {
 	s.RegisterService(&Products_ServiceDesc, srv)
-}
-
-func _Products_RegisterParentProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RegParentProductReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ProductsServer).RegisterParentProduct(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/proto.Products/RegisterParentProduct",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProductsServer).RegisterParentProduct(ctx, req.(*RegParentProductReq))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _Products_RegisterProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -317,7 +271,7 @@ func _Products_RegisterProduct_Handler(srv interface{}, ctx context.Context, dec
 }
 
 func _Products_GetListOfProducts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(EmptyAdminReq)
+	in := new(DataTableReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -329,7 +283,7 @@ func _Products_GetListOfProducts_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: "/proto.Products/GetListOfProducts",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProductsServer).GetListOfProducts(ctx, req.(*EmptyAdminReq))
+		return srv.(ProductsServer).GetListOfProducts(ctx, req.(*DataTableReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -352,24 +306,6 @@ func _Products_ChangeProductsStatus_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Products_ChangeParentProductsStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeStatusReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ProductsServer).ChangeParentProductsStatus(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/proto.Products/ChangeParentProductsStatus",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProductsServer).ChangeParentProductsStatus(ctx, req.(*ChangeStatusReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // Products_ServiceDesc is the grpc.ServiceDesc for Products service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -377,10 +313,6 @@ var Products_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.Products",
 	HandlerType: (*ProductsServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "RegisterParentProduct",
-			Handler:    _Products_RegisterParentProduct_Handler,
-		},
 		{
 			MethodName: "RegisterProduct",
 			Handler:    _Products_RegisterProduct_Handler,
@@ -393,205 +325,199 @@ var Products_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "ChangeProductsStatus",
 			Handler:    _Products_ChangeProductsStatus_Handler,
 		},
-		{
-			MethodName: "ChangeParentProductsStatus",
-			Handler:    _Products_ChangeParentProductsStatus_Handler,
-		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "admin_service.proto",
 }
 
-// GroupsClient is the client API for Groups service.
+// AdminGroupsClient is the client API for AdminGroups service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type GroupsClient interface {
-	// rpc RegisterParentGroup (RegGroupReq) returns (AdminRes){}
+type AdminGroupsClient interface {
 	RegisterGroup(ctx context.Context, in *RegGroupReq, opts ...grpc.CallOption) (*AdminRes, error)
-	GetListOfGroups(ctx context.Context, in *EmptyAdminReq, opts ...grpc.CallOption) (*GetListOfGroupsRes, error)
-	ChangeGroupsStatus(ctx context.Context, in *ChangeStatusReq, opts ...grpc.CallOption) (*AdminRes, error)
-	ChangeParentGroupsStatus(ctx context.Context, in *ChangeStatusReq, opts ...grpc.CallOption) (*AdminRes, error)
+	UpdateGroup(ctx context.Context, in *UpdateGroupReq, opts ...grpc.CallOption) (*AdminRes, error)
+	GetListOfGroups(ctx context.Context, in *DataTableReq, opts ...grpc.CallOption) (*DataTableRes, error)
+	ChangeGroupsStatus(ctx context.Context, in *ChangeStatusReq, opts ...grpc.CallOption) (*ChangeStatusRes, error)
 }
 
-type groupsClient struct {
+type adminGroupsClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewGroupsClient(cc grpc.ClientConnInterface) GroupsClient {
-	return &groupsClient{cc}
+func NewAdminGroupsClient(cc grpc.ClientConnInterface) AdminGroupsClient {
+	return &adminGroupsClient{cc}
 }
 
-func (c *groupsClient) RegisterGroup(ctx context.Context, in *RegGroupReq, opts ...grpc.CallOption) (*AdminRes, error) {
+func (c *adminGroupsClient) RegisterGroup(ctx context.Context, in *RegGroupReq, opts ...grpc.CallOption) (*AdminRes, error) {
 	out := new(AdminRes)
-	err := c.cc.Invoke(ctx, "/proto.Groups/RegisterGroup", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.AdminGroups/RegisterGroup", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *groupsClient) GetListOfGroups(ctx context.Context, in *EmptyAdminReq, opts ...grpc.CallOption) (*GetListOfGroupsRes, error) {
-	out := new(GetListOfGroupsRes)
-	err := c.cc.Invoke(ctx, "/proto.Groups/GetListOfGroups", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *groupsClient) ChangeGroupsStatus(ctx context.Context, in *ChangeStatusReq, opts ...grpc.CallOption) (*AdminRes, error) {
+func (c *adminGroupsClient) UpdateGroup(ctx context.Context, in *UpdateGroupReq, opts ...grpc.CallOption) (*AdminRes, error) {
 	out := new(AdminRes)
-	err := c.cc.Invoke(ctx, "/proto.Groups/ChangeGroupsStatus", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.AdminGroups/UpdateGroup", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *groupsClient) ChangeParentGroupsStatus(ctx context.Context, in *ChangeStatusReq, opts ...grpc.CallOption) (*AdminRes, error) {
-	out := new(AdminRes)
-	err := c.cc.Invoke(ctx, "/proto.Groups/ChangeParentGroupsStatus", in, out, opts...)
+func (c *adminGroupsClient) GetListOfGroups(ctx context.Context, in *DataTableReq, opts ...grpc.CallOption) (*DataTableRes, error) {
+	out := new(DataTableRes)
+	err := c.cc.Invoke(ctx, "/proto.AdminGroups/GetListOfGroups", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// GroupsServer is the server API for Groups service.
-// All implementations must embed UnimplementedGroupsServer
+func (c *adminGroupsClient) ChangeGroupsStatus(ctx context.Context, in *ChangeStatusReq, opts ...grpc.CallOption) (*ChangeStatusRes, error) {
+	out := new(ChangeStatusRes)
+	err := c.cc.Invoke(ctx, "/proto.AdminGroups/ChangeGroupsStatus", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// AdminGroupsServer is the server API for AdminGroups service.
+// All implementations must embed UnimplementedAdminGroupsServer
 // for forward compatibility
-type GroupsServer interface {
-	// rpc RegisterParentGroup (RegGroupReq) returns (AdminRes){}
+type AdminGroupsServer interface {
 	RegisterGroup(context.Context, *RegGroupReq) (*AdminRes, error)
-	GetListOfGroups(context.Context, *EmptyAdminReq) (*GetListOfGroupsRes, error)
-	ChangeGroupsStatus(context.Context, *ChangeStatusReq) (*AdminRes, error)
-	ChangeParentGroupsStatus(context.Context, *ChangeStatusReq) (*AdminRes, error)
-	mustEmbedUnimplementedGroupsServer()
+	UpdateGroup(context.Context, *UpdateGroupReq) (*AdminRes, error)
+	GetListOfGroups(context.Context, *DataTableReq) (*DataTableRes, error)
+	ChangeGroupsStatus(context.Context, *ChangeStatusReq) (*ChangeStatusRes, error)
+	mustEmbedUnimplementedAdminGroupsServer()
 }
 
-// UnimplementedGroupsServer must be embedded to have forward compatible implementations.
-type UnimplementedGroupsServer struct {
+// UnimplementedAdminGroupsServer must be embedded to have forward compatible implementations.
+type UnimplementedAdminGroupsServer struct {
 }
 
-func (UnimplementedGroupsServer) RegisterGroup(context.Context, *RegGroupReq) (*AdminRes, error) {
+func (UnimplementedAdminGroupsServer) RegisterGroup(context.Context, *RegGroupReq) (*AdminRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterGroup not implemented")
 }
-func (UnimplementedGroupsServer) GetListOfGroups(context.Context, *EmptyAdminReq) (*GetListOfGroupsRes, error) {
+func (UnimplementedAdminGroupsServer) UpdateGroup(context.Context, *UpdateGroupReq) (*AdminRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateGroup not implemented")
+}
+func (UnimplementedAdminGroupsServer) GetListOfGroups(context.Context, *DataTableReq) (*DataTableRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetListOfGroups not implemented")
 }
-func (UnimplementedGroupsServer) ChangeGroupsStatus(context.Context, *ChangeStatusReq) (*AdminRes, error) {
+func (UnimplementedAdminGroupsServer) ChangeGroupsStatus(context.Context, *ChangeStatusReq) (*ChangeStatusRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeGroupsStatus not implemented")
 }
-func (UnimplementedGroupsServer) ChangeParentGroupsStatus(context.Context, *ChangeStatusReq) (*AdminRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangeParentGroupsStatus not implemented")
-}
-func (UnimplementedGroupsServer) mustEmbedUnimplementedGroupsServer() {}
+func (UnimplementedAdminGroupsServer) mustEmbedUnimplementedAdminGroupsServer() {}
 
-// UnsafeGroupsServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to GroupsServer will
+// UnsafeAdminGroupsServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AdminGroupsServer will
 // result in compilation errors.
-type UnsafeGroupsServer interface {
-	mustEmbedUnimplementedGroupsServer()
+type UnsafeAdminGroupsServer interface {
+	mustEmbedUnimplementedAdminGroupsServer()
 }
 
-func RegisterGroupsServer(s grpc.ServiceRegistrar, srv GroupsServer) {
-	s.RegisterService(&Groups_ServiceDesc, srv)
+func RegisterAdminGroupsServer(s grpc.ServiceRegistrar, srv AdminGroupsServer) {
+	s.RegisterService(&AdminGroups_ServiceDesc, srv)
 }
 
-func _Groups_RegisterGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminGroups_RegisterGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RegGroupReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GroupsServer).RegisterGroup(ctx, in)
+		return srv.(AdminGroupsServer).RegisterGroup(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.Groups/RegisterGroup",
+		FullMethod: "/proto.AdminGroups/RegisterGroup",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GroupsServer).RegisterGroup(ctx, req.(*RegGroupReq))
+		return srv.(AdminGroupsServer).RegisterGroup(ctx, req.(*RegGroupReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Groups_GetListOfGroups_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(EmptyAdminReq)
+func _AdminGroups_UpdateGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateGroupReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GroupsServer).GetListOfGroups(ctx, in)
+		return srv.(AdminGroupsServer).UpdateGroup(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.Groups/GetListOfGroups",
+		FullMethod: "/proto.AdminGroups/UpdateGroup",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GroupsServer).GetListOfGroups(ctx, req.(*EmptyAdminReq))
+		return srv.(AdminGroupsServer).UpdateGroup(ctx, req.(*UpdateGroupReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Groups_ChangeGroupsStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminGroups_GetListOfGroups_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DataTableReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminGroupsServer).GetListOfGroups(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.AdminGroups/GetListOfGroups",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminGroupsServer).GetListOfGroups(ctx, req.(*DataTableReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdminGroups_ChangeGroupsStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeStatusReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GroupsServer).ChangeGroupsStatus(ctx, in)
+		return srv.(AdminGroupsServer).ChangeGroupsStatus(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.Groups/ChangeGroupsStatus",
+		FullMethod: "/proto.AdminGroups/ChangeGroupsStatus",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GroupsServer).ChangeGroupsStatus(ctx, req.(*ChangeStatusReq))
+		return srv.(AdminGroupsServer).ChangeGroupsStatus(ctx, req.(*ChangeStatusReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Groups_ChangeParentGroupsStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeStatusReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(GroupsServer).ChangeParentGroupsStatus(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/proto.Groups/ChangeParentGroupsStatus",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GroupsServer).ChangeParentGroupsStatus(ctx, req.(*ChangeStatusReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// Groups_ServiceDesc is the grpc.ServiceDesc for Groups service.
+// AdminGroups_ServiceDesc is the grpc.ServiceDesc for AdminGroups service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Groups_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "proto.Groups",
-	HandlerType: (*GroupsServer)(nil),
+var AdminGroups_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.AdminGroups",
+	HandlerType: (*AdminGroupsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "RegisterGroup",
-			Handler:    _Groups_RegisterGroup_Handler,
+			Handler:    _AdminGroups_RegisterGroup_Handler,
+		},
+		{
+			MethodName: "UpdateGroup",
+			Handler:    _AdminGroups_UpdateGroup_Handler,
 		},
 		{
 			MethodName: "GetListOfGroups",
-			Handler:    _Groups_GetListOfGroups_Handler,
+			Handler:    _AdminGroups_GetListOfGroups_Handler,
 		},
 		{
 			MethodName: "ChangeGroupsStatus",
-			Handler:    _Groups_ChangeGroupsStatus_Handler,
-		},
-		{
-			MethodName: "ChangeParentGroupsStatus",
-			Handler:    _Groups_ChangeParentGroupsStatus_Handler,
+			Handler:    _AdminGroups_ChangeGroupsStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -603,8 +529,8 @@ var Groups_ServiceDesc = grpc.ServiceDesc{
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type LanguagesClient interface {
 	NewLanguage(ctx context.Context, in *NewLangReq, opts ...grpc.CallOption) (*AdminRes, error)
-	GetListOfLanguages(ctx context.Context, in *EmptyAdminReq, opts ...grpc.CallOption) (*GetListOfLanguagesRes, error)
-	ChangeLanguageStatus(ctx context.Context, in *ChangeLanguageStatusReq, opts ...grpc.CallOption) (*AdminRes, error)
+	GetListOfLanguages(ctx context.Context, in *DataTableReq, opts ...grpc.CallOption) (*DataTableRes, error)
+	ChangeLanguageStatus(ctx context.Context, in *ChangeLanguageStatusReq, opts ...grpc.CallOption) (*ChangeStatusRes, error)
 }
 
 type languagesClient struct {
@@ -624,8 +550,8 @@ func (c *languagesClient) NewLanguage(ctx context.Context, in *NewLangReq, opts 
 	return out, nil
 }
 
-func (c *languagesClient) GetListOfLanguages(ctx context.Context, in *EmptyAdminReq, opts ...grpc.CallOption) (*GetListOfLanguagesRes, error) {
-	out := new(GetListOfLanguagesRes)
+func (c *languagesClient) GetListOfLanguages(ctx context.Context, in *DataTableReq, opts ...grpc.CallOption) (*DataTableRes, error) {
+	out := new(DataTableRes)
 	err := c.cc.Invoke(ctx, "/proto.Languages/GetListOfLanguages", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -633,8 +559,8 @@ func (c *languagesClient) GetListOfLanguages(ctx context.Context, in *EmptyAdmin
 	return out, nil
 }
 
-func (c *languagesClient) ChangeLanguageStatus(ctx context.Context, in *ChangeLanguageStatusReq, opts ...grpc.CallOption) (*AdminRes, error) {
-	out := new(AdminRes)
+func (c *languagesClient) ChangeLanguageStatus(ctx context.Context, in *ChangeLanguageStatusReq, opts ...grpc.CallOption) (*ChangeStatusRes, error) {
+	out := new(ChangeStatusRes)
 	err := c.cc.Invoke(ctx, "/proto.Languages/ChangeLanguageStatus", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -647,8 +573,8 @@ func (c *languagesClient) ChangeLanguageStatus(ctx context.Context, in *ChangeLa
 // for forward compatibility
 type LanguagesServer interface {
 	NewLanguage(context.Context, *NewLangReq) (*AdminRes, error)
-	GetListOfLanguages(context.Context, *EmptyAdminReq) (*GetListOfLanguagesRes, error)
-	ChangeLanguageStatus(context.Context, *ChangeLanguageStatusReq) (*AdminRes, error)
+	GetListOfLanguages(context.Context, *DataTableReq) (*DataTableRes, error)
+	ChangeLanguageStatus(context.Context, *ChangeLanguageStatusReq) (*ChangeStatusRes, error)
 	mustEmbedUnimplementedLanguagesServer()
 }
 
@@ -659,10 +585,10 @@ type UnimplementedLanguagesServer struct {
 func (UnimplementedLanguagesServer) NewLanguage(context.Context, *NewLangReq) (*AdminRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method NewLanguage not implemented")
 }
-func (UnimplementedLanguagesServer) GetListOfLanguages(context.Context, *EmptyAdminReq) (*GetListOfLanguagesRes, error) {
+func (UnimplementedLanguagesServer) GetListOfLanguages(context.Context, *DataTableReq) (*DataTableRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetListOfLanguages not implemented")
 }
-func (UnimplementedLanguagesServer) ChangeLanguageStatus(context.Context, *ChangeLanguageStatusReq) (*AdminRes, error) {
+func (UnimplementedLanguagesServer) ChangeLanguageStatus(context.Context, *ChangeLanguageStatusReq) (*ChangeStatusRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeLanguageStatus not implemented")
 }
 func (UnimplementedLanguagesServer) mustEmbedUnimplementedLanguagesServer() {}
@@ -697,7 +623,7 @@ func _Languages_NewLanguage_Handler(srv interface{}, ctx context.Context, dec fu
 }
 
 func _Languages_GetListOfLanguages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(EmptyAdminReq)
+	in := new(DataTableReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -709,7 +635,7 @@ func _Languages_GetListOfLanguages_Handler(srv interface{}, ctx context.Context,
 		FullMethod: "/proto.Languages/GetListOfLanguages",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LanguagesServer).GetListOfLanguages(ctx, req.(*EmptyAdminReq))
+		return srv.(LanguagesServer).GetListOfLanguages(ctx, req.(*DataTableReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }

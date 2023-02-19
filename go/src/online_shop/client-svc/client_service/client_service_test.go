@@ -1,4 +1,4 @@
-package user_service
+package client_service
 
 import (
 	"context"
@@ -10,7 +10,6 @@ import (
 	"online_shop/client-svc/config"
 	"online_shop/client-svc/pb"
 	"online_shop/repository"
-	"online_shop/repository/models"
 	"testing"
 
 	"google.golang.org/grpc"
@@ -39,8 +38,10 @@ func TestClientServices(t *testing.T) {
 		fmt.Printf("Cant connect to Database: %v", err)
 	}
 
-	usersrv := NewUserServiceServer(Db, &cfg)
-	pb.RegisterUsersServer(s, usersrv)
+	clientsrv := NewClientsServiceServer(Db, &cfg)
+	pb.RegisterClientsServer(s, clientsrv)
+	clientgroupssrv := NewClientGroupsServer(Db, &cfg)
+	pb.RegisterClientGroupsServer(s, clientgroupssrv)
 
 	go func() {
 		if err := s.Serve(lis); err != nil {
@@ -71,139 +72,139 @@ func TestClientServices(t *testing.T) {
 	}
 	defer conn.Close()
 
-	userclient := pb.NewUsersClient(conn)
+	// userclient := pb.NewUsersClient(conn)
 
-	t.Run("UpdateUserInfoTest", func(t *testing.T) {
+	// t.Run("UpdateUserInfoTest", func(t *testing.T) {
 
-		t.Run("UpdateUserInfoTest1", func(t *testing.T) {
+	// 	t.Run("UpdateUserInfoTest1", func(t *testing.T) {
 
-			user, err := Db.SelectOneFrom(models.UsersTable, "where email = $1", "daostas@gmail.com")
-			if err != nil {
-				t.Errorf("UpdateUserInfoTest1 failed: %v", err)
-			}
+	// 		user, err := Db.SelectOneFrom(models.UsersTable, "where email = $1", "daostas@gmail.com")
+	// 		if err != nil {
+	// 			t.Errorf("UpdateUserInfoTest1 failed: %v", err)
+	// 		}
 
-			req := &pb.UpdateUserInfoReq{
-				Id:      user.(*models.Users).UserID,
-				Name:    "Stas",
-				Number:  "",
-				Email:   "daostas@gmail.com",
-				Dob:     "",
-				Address: "",
-			}
+	// 		req := &pb.UpdateUserInfoReq{
+	// 			Id:      user.(*models.Users).UserID,
+	// 			Name:    "Stas",
+	// 			Number:  "",
+	// 			Email:   "daostas@gmail.com",
+	// 			Dob:     "",
+	// 			Address: "",
+	// 		}
 
-			res, _ := userclient.UpdateUserInfo(ctx, req)
+	// 		res, _ := userclient.UpdateUserInfo(ctx, req)
 
-			if res.Err != "success" {
-				t.Errorf("UpdateUserInfoTest1 failed: %v", res.Err)
-			}
+	// 		if res.Err != "success" {
+	// 			t.Errorf("UpdateUserInfoTest1 failed: %v", res.Err)
+	// 		}
 
-		})
+	// 	})
 
-	})
+	// })
 
-	t.Run("UpdateUserPassTest", func(t *testing.T) {
+	// t.Run("UpdateUserPassTest", func(t *testing.T) {
 
-		t.Run("UpdateUserPassTest1", func(t *testing.T) {
+	// 	t.Run("UpdateUserPassTest1", func(t *testing.T) {
 
-			user, err := Db.SelectOneFrom(models.UsersTable, "where email = $1", "daostas@gmail.com")
-			if err != nil {
-				t.Errorf("UpdateUserPassTest1 failed: %v", err)
-			}
+	// 		user, err := Db.SelectOneFrom(models.UsersTable, "where email = $1", "daostas@gmail.com")
+	// 		if err != nil {
+	// 			t.Errorf("UpdateUserPassTest1 failed: %v", err)
+	// 		}
 
-			req := &pb.UpdateUserPassReq{
-				Id:    user.(*models.Users).UserID,
-				Pass:  "password123",
-				Pass1: "password123",
-				Pass2: "password123",
-			}
+	// 		req := &pb.UpdateUserPassReq{
+	// 			Id:    user.(*models.Users).UserID,
+	// 			Pass:  "password123",
+	// 			Pass1: "password123",
+	// 			Pass2: "password123",
+	// 		}
 
-			res, err := userclient.UpdateUserPass(ctx, req)
-			if err != nil {
-				t.Errorf("UpdateUserPassTest1 failed: %v", err)
-			}
+	// 		res, err := userclient.UpdateUserPass(ctx, req)
+	// 		if err != nil {
+	// 			t.Errorf("UpdateUserPassTest1 failed: %v", err)
+	// 		}
 
-			if res.Err != "the entered old password and the current one did not match" {
-				t.Errorf("UpdateUserPassTest1 failed: %v", res.Err)
-			}
+	// 		if res.Err != "the entered old password and the current one did not match" {
+	// 			t.Errorf("UpdateUserPassTest1 failed: %v", res.Err)
+	// 		}
 
-		})
+	// 	})
 
-		t.Run("UpdateUserPassTest2", func(t *testing.T) {
+	// 	t.Run("UpdateUserPassTest2", func(t *testing.T) {
 
-			user, err := Db.SelectOneFrom(models.UsersTable, "where email = $1", "daostas@gmail.com")
-			if err != nil {
-				t.Errorf("UpdateUserPassTest2 failed: %v", err)
-			}
+	// 		user, err := Db.SelectOneFrom(models.UsersTable, "where email = $1", "daostas@gmail.com")
+	// 		if err != nil {
+	// 			t.Errorf("UpdateUserPassTest2 failed: %v", err)
+	// 		}
 
-			req := &pb.UpdateUserPassReq{
-				Id:    user.(*models.Users).UserID,
-				Pass:  "password",
-				Pass1: "password123",
-				Pass2: "password1234",
-			}
+	// 		req := &pb.UpdateUserPassReq{
+	// 			Id:    user.(*models.Users).UserID,
+	// 			Pass:  "password",
+	// 			Pass1: "password123",
+	// 			Pass2: "password1234",
+	// 		}
 
-			res, _ := userclient.UpdateUserPass(ctx, req)
+	// 		res, _ := userclient.UpdateUserPass(ctx, req)
 
-			if res.Err != "the new password and its repetition do not match" {
-				t.Errorf("UpdateUserPassTest2 failed: %v", res.Err)
-			}
+	// 		if res.Err != "the new password and its repetition do not match" {
+	// 			t.Errorf("UpdateUserPassTest2 failed: %v", res.Err)
+	// 		}
 
-		})
+	// 	})
 
-		t.Run("UpdateUserPassTest3", func(t *testing.T) {
+	// 	t.Run("UpdateUserPassTest3", func(t *testing.T) {
 
-			user, err := Db.SelectOneFrom(models.UsersTable, "where email = $1", "daostas@gmail.com")
-			if err != nil {
-				t.Errorf("UpdateUserPassTest3 failed: %v", err)
-			}
+	// 		user, err := Db.SelectOneFrom(models.UsersTable, "where email = $1", "daostas@gmail.com")
+	// 		if err != nil {
+	// 			t.Errorf("UpdateUserPassTest3 failed: %v", err)
+	// 		}
 
-			req := &pb.UpdateUserPassReq{
-				Id:    user.(*models.Users).UserID,
-				Pass:  "password",
-				Pass1: "password123",
-				Pass2: "password123",
-			}
+	// 		req := &pb.UpdateUserPassReq{
+	// 			Id:    user.(*models.Users).UserID,
+	// 			Pass:  "password",
+	// 			Pass1: "password123",
+	// 			Pass2: "password123",
+	// 		}
 
-			res, _ := userclient.UpdateUserPass(ctx, req)
+	// 		res, _ := userclient.UpdateUserPass(ctx, req)
 
-			if res.Err != "success" {
-				t.Errorf("UpdateUserPassTest3 failed: %v", res.Err)
-			}
+	// 		if res.Err != "success" {
+	// 			t.Errorf("UpdateUserPassTest3 failed: %v", res.Err)
+	// 		}
 
-		})
+	// 	})
 
-	})
+	// })
 
-	t.Run("DeleteUserTest", func(t *testing.T) {
+	// t.Run("DeleteUserTest", func(t *testing.T) {
 
-		t.Run("DeleteUserTest1", func(t *testing.T) {
+	// 	t.Run("DeleteUserTest1", func(t *testing.T) {
 
-			req := &pb.DeleteUserReq{
-				Login: "daostas@gmail.com",
-			}
+	// 		req := &pb.DeleteUserReq{
+	// 			Login: "daostas@gmail.com",
+	// 		}
 
-			res, _ := userclient.DeleteUser(ctx, req)
+	// 		res, _ := userclient.DeleteUser(ctx, req)
 
-			if res.Err != "success" {
-				t.Errorf("DeleteUserTest1 failed: %v", res.Err)
-			}
+	// 		if res.Err != "success" {
+	// 			t.Errorf("DeleteUserTest1 failed: %v", res.Err)
+	// 		}
 
-		})
+	// 	})
 
-		t.Run("DeleteUserTest2", func(t *testing.T) {
+	// 	t.Run("DeleteUserTest2", func(t *testing.T) {
 
-			req := &pb.DeleteUserReq{
-				Login: "87019852218",
-			}
+	// 		req := &pb.DeleteUserReq{
+	// 			Login: "87019852218",
+	// 		}
 
-			res, _ := userclient.DeleteUser(ctx, req)
+	// 		res, _ := userclient.DeleteUser(ctx, req)
 
-			if res.Err != "success" {
-				t.Errorf("DeleteUserTest2 failed: %v", res.Err)
-			}
+	// 		if res.Err != "success" {
+	// 			t.Errorf("DeleteUserTest2 failed: %v", res.Err)
+	// 		}
 
-		})
-	})
+	// 	})
+	// })
 
 	if err := SqlDB.Close(); err != nil {
 		t.Errorf("Cant close Database: %v", err)

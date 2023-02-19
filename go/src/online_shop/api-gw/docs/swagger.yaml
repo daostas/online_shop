@@ -1,8 +1,182 @@
 basePath: /
 definitions:
+  pb.AdminRes:
+    properties:
+      err:
+        type: string
+      status:
+        type: integer
+    type: object
   pb.AuthRes:
     properties:
       err:
+        type: string
+      status:
+        type: integer
+    type: object
+  pb.ChangeStatusReq:
+    properties:
+      id:
+        type: integer
+    type: object
+  pb.ChangeStatusRes:
+    properties:
+      err:
+        type: string
+      object:
+        type: boolean
+      status:
+        type: integer
+    type: object
+  pb.DataTableColumns:
+    properties:
+      data:
+        type: string
+      name:
+        type: string
+      orderable:
+        type: boolean
+      search:
+        $ref: '#/definitions/pb.Search'
+      searchable:
+        type: boolean
+    type: object
+  pb.DataTableOrder:
+    properties:
+      column:
+        type: integer
+      dir:
+        type: string
+    type: object
+  pb.DataTableReq:
+    properties:
+      columns:
+        items:
+          $ref: '#/definitions/pb.DataTableColumns'
+        type: array
+      draw:
+        type: integer
+      filter:
+        additionalProperties:
+          type: string
+        type: object
+      length:
+        type: integer
+      order:
+        items:
+          $ref: '#/definitions/pb.DataTableOrder'
+        type: array
+      search:
+        $ref: '#/definitions/pb.Search'
+      start:
+        type: integer
+    type: object
+  pb.DataTableRes:
+    properties:
+      data:
+        items:
+          type: integer
+        type: array
+      err:
+        type: string
+      status:
+        type: integer
+    type: object
+  pb.GetGroupsReq:
+    properties:
+      group_id:
+        type: integer
+      language_id:
+        type: integer
+    type: object
+  pb.GetGroupsRes:
+    properties:
+      err:
+        type: string
+      groups:
+        items:
+          $ref: '#/definitions/pb.GetGroupsRes_Group'
+        type: array
+      status:
+        type: integer
+    type: object
+  pb.GetGroupsRes_Group:
+    properties:
+      description:
+        type: string
+      group_id:
+        type: integer
+      title:
+        type: string
+    type: object
+  pb.Localization:
+    properties:
+      description:
+        type: string
+      title:
+        type: string
+    type: object
+  pb.RegGroupReq:
+    properties:
+      localizations:
+        additionalProperties:
+          $ref: '#/definitions/pb.Localization'
+        type: object
+      parent_id:
+        type: integer
+      photos:
+        items:
+          type: string
+        type: array
+      sort_order:
+        type: integer
+      status:
+        type: boolean
+    type: object
+  pb.RegProducerReq:
+    properties:
+      localizations:
+        additionalProperties:
+          $ref: '#/definitions/pb.Localization'
+        type: object
+      photos:
+        items:
+          type: string
+        type: array
+      status:
+        type: boolean
+    type: object
+  pb.RegProductReq:
+    properties:
+      amount:
+        type: integer
+      current_discount:
+        type: integer
+      jan:
+        type: string
+      localizations:
+        additionalProperties:
+          $ref: '#/definitions/pb.Localization'
+        type: object
+      model:
+        type: string
+      mpn:
+        type: string
+      parent_id:
+        type: integer
+      photos:
+        items:
+          type: string
+        type: array
+      rating:
+        type: number
+      sku:
+        type: string
+      status:
+        type: boolean
+      upc:
+        type: string
+      usbn:
         type: string
     type: object
   pb.RegReq:
@@ -10,6 +184,13 @@ definitions:
       login:
         type: string
       password:
+        type: string
+    type: object
+  pb.Search:
+    properties:
+      regex:
+        type: boolean
+      value:
         type: string
     type: object
   pb.SignInReq:
@@ -42,7 +223,210 @@ info:
   title: Quick Shop API
   version: "1.0"
 paths:
-  /auth/login/by/email:
+  /admin/get/list/groups:
+    post:
+      description: Регистрация пользователя
+      parameters:
+      - description: ' '
+        in: body
+        name: admin
+        required: true
+        schema:
+          $ref: '#/definitions/pb.DataTableReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pb.DataTableRes'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри SignInRes в
+            поле Err
+          schema:
+            $ref: '#/definitions/pb.DataTableRes'
+      security:
+      - BearerAuth: []
+      summary: Регистрация пользователя
+      tags:
+      - admin groups
+  /admin/groups/change/status:
+    post:
+      description: Регистрация пользователя
+      parameters:
+      - description: ' '
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/pb.DataTableReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pb.ChangeStatusReq'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри SignInRes в
+            поле Err
+          schema:
+            $ref: '#/definitions/pb.ChangeStatusRes'
+      security:
+      - BearerAuth: []
+      summary: Регистрация пользователя
+      tags:
+      - user
+  /admin/register/groups:
+    post:
+      description: Регистрация пользователя
+      parameters:
+      - description: ' '
+        in: body
+        name: admin
+        required: true
+        schema:
+          $ref: '#/definitions/pb.RegGroupReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Всё прошло успешно
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+        "209":
+          description: Прошло успешно, но есть warning, потому что группа с таким
+            названием уже существует
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+        "433":
+          description: Ошибка возникающая при передаче неправильных данных в localizations
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри SignInRes в
+            поле Err
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+      security:
+      - BearerAuth: []
+      summary: Регистрация пользователя
+      tags:
+      - admin groups
+  /admin/register/producers:
+    post:
+      description: Регистрация пользователя
+      parameters:
+      - description: ' '
+        in: body
+        name: admin
+        required: true
+        schema:
+          $ref: '#/definitions/pb.RegProducerReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Всё прошло успешно
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+        "209":
+          description: Прошло успешно, но есть warning, потому что группа с таким
+            названием уже существует
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+        "433":
+          description: Ошибка возникающая при передаче неправильных данных в localizations
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри SignInRes в
+            поле Err
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+      security:
+      - BearerAuth: []
+      summary: Регистрация пользователя
+      tags:
+      - admin producers
+  /admin/register/products:
+    post:
+      description: Регистрация пользователя
+      parameters:
+      - description: ' '
+        in: body
+        name: admin
+        required: true
+        schema:
+          $ref: '#/definitions/pb.RegProductReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Всё прошло успешно
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+        "209":
+          description: Прошло успешно, но есть warning, потому что группа с таким
+            названием уже существует
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+        "433":
+          description: Ошибка возникающая при передаче неправильных данных в localizations
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри SignInRes в
+            поле Err
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+      security:
+      - BearerAuth: []
+      summary: Регистрация пользователя
+      tags:
+      - admin products
+  /auth/login/admin:
+    post:
+      description: Аутенфикации админа
+      parameters:
+      - description: ' '
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/pb.SignInReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pb.SignInRes'
+        "434":
+          description: Ошибка возникающая, если пользователь ввел не верный пароль
+          schema:
+            $ref: '#/definitions/pb.SignInRes'
+        "435":
+          description: Ошибка возникающая, если админ с таким логином не найден
+          schema:
+            $ref: '#/definitions/pb.SignInRes'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри SignInRes в
+            поле Err
+          schema:
+            $ref: '#/definitions/pb.SignInRes'
+      security:
+      - BearerAuth: []
+      summary: Аутенфикации админа
+      tags:
+      - auth
+  /auth/login/user:
     post:
       description: Аутенфикации пользователя
       parameters:
@@ -59,41 +443,65 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/pb.SignInRes'
-        "500":
-          description: error
+        "433":
+          description: Ошибка возникающая,если пользователь ввел ни почту и ни номер
           schema:
-            type: string
+            $ref: '#/definitions/pb.SignInRes'
+        "434":
+          description: Ошибка возникающая, если пользователь ввел не верный пароль
+          schema:
+            $ref: '#/definitions/pb.SignInRes'
+        "435":
+          description: Ошибка возникающая, если пользователь с таким логином не найден
+          schema:
+            $ref: '#/definitions/pb.SignInRes'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри SignInRes в
+            поле Err
+          schema:
+            $ref: '#/definitions/pb.SignInRes'
       security:
       - BearerAuth: []
-      summary: Аутенфикации пользователя по почте
+      summary: Аутенфикации пользователя
       tags:
-      - user
-  /auth/login/by/num:
+      - auth
+  /auth/register/admin:
     post:
-      description: Аутенфикации пользователя
+      description: Регистрация админа
       parameters:
       - description: ' '
         in: body
-        name: user
+        name: admin
         required: true
         schema:
-          $ref: '#/definitions/pb.SignInReq'
+          $ref: '#/definitions/pb.RegReq'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/pb.SignInRes'
-        "500":
-          description: error
+            $ref: '#/definitions/pb.AuthRes'
+        "432":
+          description: Ошибка возникающая, если админ с таким логином уже существует
           schema:
-            type: string
+            $ref: '#/definitions/pb.AuthRes'
+        "433":
+          description: Ошибка возникающая, если пользователь ввел ни почту и ни пароль
+          schema:
+            $ref: '#/definitions/pb.AuthRes'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри AuthRes в поле
+            Err
+          schema:
+            $ref: '#/definitions/pb.AuthRes'
       security:
       - BearerAuth: []
-      summary: Аутенфикации пользователя по номеру телефона
+      summary: Регистрация админа
       tags:
-      - user
+      - auth
   /auth/register/user:
     post:
       description: Регистрация пользователя
@@ -111,15 +519,55 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/pb.AuthRes'
-        "500":
-          description: error
+        "432":
+          description: Пользователь с таким логином уже существует
           schema:
-            type: string
+            $ref: '#/definitions/pb.AuthRes'
+        "433":
+          description: Ошибка возникающая если пользователь ввел ни почту и ни номер
+          schema:
+            $ref: '#/definitions/pb.AuthRes'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри AuthRes в поле
+            Err
+          schema:
+            $ref: '#/definitions/pb.AuthRes'
       security:
       - BearerAuth: []
       summary: Регистрация пользователя
       tags:
-      - user
+      - auth
+  /client/get/groups:
+    post:
+      description: Чтобы получить список главных групп, поле group_id должно быть
+        равно нулю. Для получение подгрупп тебе нужно отправить в group_id айди нужной
+        группы
+      parameters:
+      - description: ' '
+        in: body
+        name: GetGroupsReq
+        required: true
+        schema:
+          $ref: '#/definitions/pb.GetGroupsReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Всё прошло успешно
+          schema:
+            $ref: '#/definitions/pb.GetGroupsRes'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри GetGroupsRes
+            в поле Err
+          schema:
+            $ref: '#/definitions/pb.GetGroupsRes'
+      security:
+      - BearerAuth: []
+      summary: Получение списка групп
+      tags:
+      - client groups
 securityDefinitions:
   BearerAuth:
     in: header

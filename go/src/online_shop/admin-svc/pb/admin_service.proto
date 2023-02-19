@@ -1,5 +1,5 @@
 syntax = "proto3";
-
+//import "google/protobuf/timestamp.proto";
 package proto;
 option go_package = "../pb";
 
@@ -10,7 +10,8 @@ message EmptyAdminReq{
 }
 
 message AdminRes {
-    string err = 1;
+    int32 status = 1;
+    string err = 2;
 }
 
 message Localization{
@@ -20,6 +21,52 @@ message Localization{
 
 message ChangeStatusReq{
     int32 id = 1;
+}
+
+message ChangeStatusRes{
+    int32 status = 1;
+    string err = 2;
+    bool object = 3;
+}
+
+message DataTableReq {
+    int32 draw = 1;
+    repeated DataTableColumns columns = 2;
+    repeated DataTableOrder order = 3;
+    int32 start = 4;
+    int32 length = 5;
+    Search search = 6;
+    map<string, string> filter = 7;
+}
+
+message DataTableRes { 
+    message Response {
+    int32 draw = 1;
+    int32 recordstotal = 2;
+    int32 recordsfiltered = 3;
+    repeated bytes data = 4;
+    }
+    bytes data = 1;
+    string err = 2;
+    int32 status = 3;
+}
+
+message DataTableColumns {
+    string data = 1;
+    string name = 2;
+    bool orderable = 3;
+    bool searchable = 4;
+    Search search = 5;
+} 
+
+message DataTableOrder {
+    int32 column = 1;
+    string dir = 2;
+}
+
+message Search {
+    string value = 1;
+    bool regex = 2;
 }
 
 service Producers{
@@ -55,11 +102,9 @@ message RegProducerReq{
 
 
 service Products {
-    rpc RegisterParentProduct (RegParentProductReq) returns (AdminRes){}
     rpc RegisterProduct (RegProductReq) returns (AdminRes){}
-    rpc GetListOfProducts (EmptyAdminReq) returns (GetListOfProductsRes){}
+    rpc GetListOfProducts (DataTableReq) returns (DataTableRes){}
     rpc ChangeProductsStatus (ChangeStatusReq) returns (AdminRes){}
-    rpc ChangeParentProductsStatus (ChangeStatusReq) returns (AdminRes){}
 }
 
 message Product {
@@ -99,8 +144,10 @@ message RegProductReq{
     string mpn = 7;
     repeated string photos = 8;
     int32 amount = 9;
-    bool status = 10;
-    map<string, Localization>  localizations = 11;
+    double rating = 10;
+    int32 current_discount = 11;
+    bool status = 12;
+    map<string, Localization>  localizations = 13;
 
 }
 
@@ -116,41 +163,34 @@ message GetListOfProductsRes{
     string err = 2;
 }
 
-service Groups {
-    // rpc RegisterParentGroup (RegGroupReq) returns (AdminRes){}
+service AdminGroups {
     rpc RegisterGroup (RegGroupReq) returns (AdminRes){}
-    rpc GetListOfGroups (EmptyAdminReq) returns (GetListOfGroupsRes){}
-    rpc ChangeGroupsStatus (ChangeStatusReq) returns (AdminRes){}
-    rpc ChangeParentGroupsStatus (ChangeStatusReq) returns (AdminRes){}
+    rpc UpdateGroup (UpdateGroupReq) returns (AdminRes) {}
+    rpc GetListOfGroups (DataTableReq) returns (DataTableRes){}
+    rpc ChangeGroupsStatus (ChangeStatusReq) returns (ChangeStatusRes){}
 }
 
-message RegParentGroupReq{
-    repeated string photos = 1;
-    bool status = 2;
-    map<string, Localization>  localizations = 13;
+message UpdateGroupReq{ 
+    int32 id = 1;
+    int32 parent_id = 2;
+    repeated string photos = 3;
+    bool status = 4;
+    int32 sort_order = 5;
+    map<string, Localization>  localizations = 6;
 }
 
 message RegGroupReq{
     int32 parent_id = 1;
     repeated string photos = 2;
     bool status = 3;
-    map<string, Localization>  localizations = 13;
-}
-
-message GetListOfGroupsRes{
-    message result{
-        int32 group_id = 1;
-        string title = 2;
-        repeated string photos = 3;
-    }
-    repeated result grouplist = 1 ; 
-    string err = 2;
+    int32 sort_order = 4;
+    map<string, Localization>  localizations = 5;
 }
 
 service Languages{
     rpc NewLanguage (NewLangReq) returns (AdminRes){}
-    rpc GetListOfLanguages (EmptyAdminReq) returns (GetListOfLanguagesRes){}
-    rpc ChangeLanguageStatus (ChangeLanguageStatusReq) returns (AdminRes){}
+    rpc GetListOfLanguages (DataTableReq) returns (DataTableRes){}
+    rpc ChangeLanguageStatus (ChangeLanguageStatusReq) returns (ChangeStatusRes){}
 }
 
 message Language {

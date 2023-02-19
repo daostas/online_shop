@@ -40,8 +40,10 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	usersrv := clientservice.NewUserServiceServer(Db, &cfg)
-	pb.RegisterUsersServer(s, usersrv)
+	clientsrv := clientservice.NewClientsServiceServer(Db, &cfg)
+	pb.RegisterClientsServer(s, clientsrv)
+	clientgroupssrv := clientservice.NewClientGroupsServer(Db, &cfg)
+	pb.RegisterClientGroupsServer(s, clientgroupssrv)
 
 	lis, err := net.Listen("tcp", cfg.Port)
 	if err != nil {

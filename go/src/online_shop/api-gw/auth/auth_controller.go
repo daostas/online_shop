@@ -2,8 +2,10 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"online_shop/auth-svc/pb"
+	st "online_shop/status"
 	"strconv"
 	"time"
 
@@ -125,78 +127,238 @@ func InitAuthMiddleware(cfg *config.Config, logger *golog.Logger) context.Handle
 // PostLogin godoc
 // @Summary Регистрация пользователя
 // @Description Регистрация пользователя
-// @Tags user
+// @Tags auth
 // @Param  user body pb.RegReq true " "
 // @Produce json
 // @Success 200 {object} pb.AuthRes
-// @Failure 500 {object} string "error"
+// @Failure 432 {object} pb.AuthRes "Пользователь с таким логином уже существует"
+// @Failure 500 {object} pb.AuthRes "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри AuthRes в поле Err"
+// @Failure 433 {object} pb.AuthRes "Ошибка возникающая если пользователь ввел ни почту и ни номер"
 // @Router /auth/register/user [post]
 // @Security BearerAuth
 func (c *AuthController) PostRegisterUser(ctx iris.Context) *mvc.Response {
 	var req pb.RegReq
 	err := ctx.ReadJSON(&req)
+	if err != nil {
+		fmt.Println(err)
+		return &mvc.Response{
+			Object: &pb.AuthRes{
+				Status: st.StatusInternalServerError,
+				Err:    "error in reading data from context"},
+			Err:  err,
+			Code: st.StatusInternalServerError,
+		}
+	}
+
 	res, err := c.Client.RegisterUser(ctx, &req)
 	if err != nil {
 		c.Logger.Errorf("Error registering user: %v", err)
+		fmt.Println(err)
 		return &mvc.Response{
-			Code:   iris.StatusInternalServerError,
+			Code:   st.StatusInternalServerError,
 			Object: nil,
 			Err:    err,
 		}
 	}
-	return &mvc.Response{
-		Object: res,
-		Err:    nil,
-		Code:   iris.StatusOK,
+	if res.Err != "success" {
+		return &mvc.Response{
+			Object: res,
+			Err:    fmt.Errorf(res.Err),
+			Code:   int(res.Status),
+		}
 	}
-}
 
-func (c *AuthController) Get(ctx iris.Context) *mvc.Response {
-	req := pb.SignInReq{
-		Login:    "daostas@gmail.com",
-		Password: "password",
-	}
-	res, err := c.Client.SignInUser(ctx, &req)
-	if err != nil {
-		c.Logger.Errorf("Error authentification user: %v", err)
-		return &mvc.Response{
-			Code:   iris.StatusInternalServerError,
-			Object: nil,
-			Err:    err,
-		}
-	}
 	return &mvc.Response{
 		Object: res,
 		Err:    nil,
-		Code:   iris.StatusOK,
+		Code:   st.StatusOK,
 	}
 }
 
 // PostLogin godoc
 // @Summary Аутенфикации пользователя
 // @Description Аутенфикации пользователя
-// @Tags user
+// @Tags auth
 // @Param  user body pb.SignInReq true " "
 // @Produce json
 // @Success 200 {object} pb.SignInRes
-// @Failure 500 {object} string "error"
-// @Router /auth/login [post]
+// @Failure 500 {object} pb.SignInRes "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри SignInRes в поле Err"
+// @Failure 433 {object} pb.SignInRes "Ошибка возникающая,если пользователь ввел ни почту и ни номер"
+// @Failure 435 {object} pb.SignInRes "Ошибка возникающая, если пользователь с таким логином не найден"
+// @Failure 434 {object} pb.SignInRes "Ошибка возникающая, если пользователь ввел не верный пароль"
+// @Router /auth/login/user [post]
 // @Security BearerAuth
-func (c *AuthController) PostLoginByEmail(ctx iris.Context) *mvc.Response {
+func (c *AuthController) PostLoginUser(ctx iris.Context) *mvc.Response {
 	var req pb.SignInReq
 	err := ctx.ReadJSON(&req)
+	if err != nil {
+		fmt.Println(err)
+		return &mvc.Response{
+			Object: &pb.SignInRes{
+				Status: st.StatusInternalServerError,
+				Err:    "error in reading data from context"},
+			Err:  err,
+			Code: st.StatusInternalServerError,
+		}
+	}
 	res, err := c.Client.SignInUser(ctx, &req)
+
 	if err != nil {
 		c.Logger.Errorf("Error authentification user: %v", err)
+		fmt.Println(err)
+		fmt.Println(err)
 		return &mvc.Response{
-			Code:   iris.StatusInternalServerError,
+			Code:   st.StatusInternalServerError,
 			Object: nil,
 			Err:    err,
+		}
+	}
+	if res.Err != "success" {
+		return &mvc.Response{
+			Object: res,
+			Err:    errors.New(res.Err),
+			Code:   int(res.Status),
 		}
 	}
 	return &mvc.Response{
 		Object: res,
 		Err:    nil,
-		Code:   iris.StatusOK,
+		Code:   st.StatusOK,
+	}
+}
+
+// PostLogin godoc
+// @Summary Регистрация админа
+// @Description Регистрация админа
+// @Tags auth
+// @Param  admin body pb.RegReq true " "
+// @Produce json
+// @Success 200 {object} pb.AuthRes
+// @Failure 500 {object} pb.AuthRes "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри AuthRes в поле Err"
+// @Failure 432 {object} pb.AuthRes "Ошибка возникающая, если админ с таким логином уже существует"
+// @Failure 433 {object} pb.AuthRes "Ошибка возникающая, если пользователь ввел ни почту и ни пароль"
+// @Router /auth/register/admin [post]
+// @Security BearerAuth
+func (c *AuthController) PostRegisterAdmin(ctx iris.Context) *mvc.Response {
+	var req pb.RegReqAdmin
+	err := ctx.ReadJSON(&req)
+	if err != nil {
+		fmt.Println(err)
+		return &mvc.Response{
+			Object: &pb.AuthRes{
+				Status: st.StatusInternalServerError,
+				Err:    "error in reading data from context"},
+			Err:  err,
+			Code: st.StatusInternalServerError,
+		}
+	}
+	res, err := c.Client.RegisterAdmin(ctx, &req)
+	if err != nil {
+		c.Logger.Errorf("Error registering user: %v", err)
+		return &mvc.Response{
+			Code:   st.StatusInternalServerError,
+			Object: nil,
+			Err:    err,
+		}
+	}
+	if res.Err != "success" {
+		return &mvc.Response{
+			Object: res,
+			Err:    fmt.Errorf(res.Err),
+			Code:   int(res.Status),
+		}
+	}
+
+	return &mvc.Response{
+		Object: res,
+		Err:    nil,
+		Code:   st.StatusOK,
+	}
+}
+
+func (c *AuthController) PostRegisterMadmin(ctx iris.Context) *mvc.Response {
+	var req pb.RegReqAdmin
+	err := ctx.ReadJSON(&req)
+	if err != nil {
+		return &mvc.Response{
+			Object: &pb.AuthRes{
+				Status: st.StatusInternalServerError,
+				Err:    "error in reading data from context"},
+			Err:  err,
+			Code: st.StatusInternalServerError,
+		}
+	}
+
+	res, err := c.Client.RegisterMainAdmin(ctx, &req)
+	if err != nil {
+		c.Logger.Errorf("Error registering user: %v", err)
+		return &mvc.Response{
+			Code:   st.StatusInternalServerError,
+			Object: nil,
+			Err:    err,
+		}
+	}
+
+	if res.Err != "success" {
+		return &mvc.Response{
+			Object: res,
+			Err:    fmt.Errorf(res.Err),
+			Code:   int(res.Status),
+		}
+	}
+
+	return &mvc.Response{
+		Object: res,
+		Err:    nil,
+		Code:   st.StatusOK,
+	}
+}
+
+// PostLogin godoc
+// @Summary Аутенфикации админа
+// @Description Аутенфикации админа
+// @Tags auth
+// @Param  user body pb.SignInReq true " "
+// @Produce json
+// @Success 200 {object} pb.SignInRes
+// @Failure 500 {object} pb.SignInRes "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри SignInRes в поле Err"
+// @Failure 435 {object} pb.SignInRes "Ошибка возникающая, если админ с таким логином не найден"
+// @Failure 434 {object} pb.SignInRes "Ошибка возникающая, если пользователь ввел не верный пароль"
+// @Router /auth/login/admin [post]
+// @Security BearerAuth
+func (c *AuthController) PostLoginAdmin(ctx iris.Context) *mvc.Response {
+	var req pb.SignInReq
+	err := ctx.ReadJSON(&req)
+	if err != nil {
+		return &mvc.Response{
+			Object: &pb.SignInRes{
+				Status: st.StatusInternalServerError,
+				Err:    "error in reading data from context"},
+			Err:  err,
+			Code: st.StatusInternalServerError,
+		}
+	}
+	res, err := c.Client.SignInAdmin(ctx, &req)
+	if err != nil {
+		c.Logger.Errorf("Error authentification user: %v", err)
+		return &mvc.Response{
+			Code:   st.StatusInternalServerError,
+			Object: nil,
+			Err:    err,
+		}
+	}
+
+	if res.Err != "success" {
+		return &mvc.Response{
+			Object: res,
+			Err:    fmt.Errorf(res.Err),
+			Code:   int(res.Status),
+		}
+	}
+
+	return &mvc.Response{
+		Object: res,
+		Err:    nil,
+		Code:   st.StatusOK,
 	}
 }

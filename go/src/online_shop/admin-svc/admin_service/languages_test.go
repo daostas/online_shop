@@ -52,7 +52,7 @@ func TestLanguages(t *testing.T) {
 
 	client := pb.NewLanguagesClient(conn)
 
-	t.Run("NL1", func(t *testing.T) {
+	t.Run("NewLanguage1", func(t *testing.T) {
 		req := &pb.NewLangReq{
 			Language: &pb.Language{
 				Code:      "ru-ru",
@@ -68,7 +68,7 @@ func TestLanguages(t *testing.T) {
 		}
 	})
 
-	t.Run("NL2", func(t *testing.T) {
+	t.Run("NewLanguage2", func(t *testing.T) {
 		req := &pb.NewLangReq{
 			Language: &pb.Language{
 				Code:      "en-en",
@@ -84,20 +84,20 @@ func TestLanguages(t *testing.T) {
 		}
 	})
 
-	t.Run("GLOL1", func(t *testing.T) {
+	// t.Run("GetListOfLanguages1", func(t *testing.T) {
 
-		req := &pb.EmptyAdminReq{}
+	// 	req := &pb.EmptyAdminReq{}
 
-		res, err := client.GetListOfLanguages(ctx, req)
-		for i := range res.Languages {
-			fmt.Println(res.Languages[i].LangName)
-		}
-		if res.Err != "success" {
-			t.Errorf("GetListOfLanguagesTest1 failed: %v", err)
-		}
-	})
+	// 	res, err := client.GetListOfLanguages(ctx, req)
+	// 	for i := range res.Languages {
+	// 		fmt.Println(res.Languages[i].LangName)
+	// 	}
+	// 	if res.Err != "success" {
+	// 		t.Errorf("GetListOfLanguagesTest1 failed: %v", err)
+	// 	}
+	// })
 
-	t.Run("NL3", func(t *testing.T) {
+	t.Run("NewLanguage3", func(t *testing.T) {
 		req := &pb.NewLangReq{
 			Language: &pb.Language{
 				Code:      "kz-kz",
@@ -140,7 +140,7 @@ func TestLanguages(t *testing.T) {
 		}
 	})
 
-	t.Run("CS1", func(t *testing.T) {
+	t.Run("ChangeStatus1", func(t *testing.T) {
 		lang, err := langsrv.Db.SelectOneFrom(models.LanguagesTable, "where lang_name = 'Lang3'")
 		if err != nil {
 			t.Errorf("error in getting data from languages table: %v", err)

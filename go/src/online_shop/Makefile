@@ -35,3 +35,5 @@ debug-api:
 
 stop:
 	killall -q -w -s SIGTERM api-shop client-svc admin-svc setting-svc auth2-svc
+
+rerun: stop all run

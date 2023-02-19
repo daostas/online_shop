@@ -32,6 +32,9 @@ func (v *groupsTableType) Columns() []string {
 		"parent_id",
 		"photos",
 		"status",
+		"sort_order",
+		"created_at",
+		"updated_at",
 	}
 }
 
@@ -60,6 +63,9 @@ var GroupsTable = &groupsTableType{
 			{Name: "ParentID", Type: "*int32", Column: "parent_id"},
 			{Name: "Photos", Type: "pq.StringArray", Column: "photos"},
 			{Name: "Status", Type: "bool", Column: "status"},
+			{Name: "SortOrder", Type: "int32", Column: "sort_order"},
+			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
+			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -68,11 +74,14 @@ var GroupsTable = &groupsTableType{
 
 // String returns a string representation of this struct or record.
 func (s Groups) String() string {
-	res := make([]string, 4)
+	res := make([]string, 7)
 	res[0] = "GroupID: " + reform.Inspect(s.GroupID, true)
 	res[1] = "ParentID: " + reform.Inspect(s.ParentID, true)
 	res[2] = "Photos: " + reform.Inspect(s.Photos, true)
 	res[3] = "Status: " + reform.Inspect(s.Status, true)
+	res[4] = "SortOrder: " + reform.Inspect(s.SortOrder, true)
+	res[5] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[6] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -84,6 +93,9 @@ func (s *Groups) Values() []interface{} {
 		s.ParentID,
 		s.Photos,
 		s.Status,
+		s.SortOrder,
+		s.CreatedAt,
+		s.UpdatedAt,
 	}
 }
 
@@ -95,6 +107,9 @@ func (s *Groups) Pointers() []interface{} {
 		&s.ParentID,
 		&s.Photos,
 		&s.Status,
+		&s.SortOrder,
+		&s.CreatedAt,
+		&s.UpdatedAt,
 	}
 }
 

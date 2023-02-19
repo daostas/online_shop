@@ -25,29 +25,29 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/login/by/email": {
+        "/admin/get/list/groups": {
             "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Аутенфикации пользователя",
+                "description": "Регистрация пользователя",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "admin groups"
                 ],
-                "summary": "Аутенфикации пользователя по почте",
+                "summary": "Регистрация пользователя",
                 "parameters": [
                     {
                         "description": " ",
-                        "name": "user",
+                        "name": "admin",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/pb.SignInReq"
+                            "$ref": "#/definitions/pb.DataTableReq"
                         }
                     }
                 ],
@@ -55,61 +55,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/pb.SignInRes"
+                            "$ref": "#/definitions/pb.DataTableRes"
                         }
                     },
                     "500": {
-                        "description": "error",
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри SignInRes в поле Err",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/pb.DataTableRes"
                         }
                     }
                 }
             }
         },
-        "/auth/login/by/num": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Аутенфикации пользователя",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "Аутенфикации пользователя по номеру телефона",
-                "parameters": [
-                    {
-                        "description": " ",
-                        "name": "user",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/pb.SignInReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/pb.SignInRes"
-                        }
-                    },
-                    "500": {
-                        "description": "error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/register/user": {
+        "/admin/groups/change/status": {
             "post": {
                 "security": [
                     {
@@ -131,6 +89,324 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "$ref": "#/definitions/pb.DataTableReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pb.ChangeStatusReq"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри SignInRes в поле Err",
+                        "schema": {
+                            "$ref": "#/definitions/pb.ChangeStatusRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/register/groups": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Регистрация пользователя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin groups"
+                ],
+                "summary": "Регистрация пользователя",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "admin",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pb.RegGroupReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Всё прошло успешно",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    },
+                    "209": {
+                        "description": "Прошло успешно, но есть warning, потому что группа с таким названием уже существует",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    },
+                    "433": {
+                        "description": "Ошибка возникающая при передаче неправильных данных в localizations",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри SignInRes в поле Err",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/register/producers": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Регистрация пользователя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin producers"
+                ],
+                "summary": "Регистрация пользователя",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "admin",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pb.RegProducerReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Всё прошло успешно",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    },
+                    "209": {
+                        "description": "Прошло успешно, но есть warning, потому что группа с таким названием уже существует",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    },
+                    "433": {
+                        "description": "Ошибка возникающая при передаче неправильных данных в localizations",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри SignInRes в поле Err",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/register/products": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Регистрация пользователя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin products"
+                ],
+                "summary": "Регистрация пользователя",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "admin",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pb.RegProductReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Всё прошло успешно",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    },
+                    "209": {
+                        "description": "Прошло успешно, но есть warning, потому что группа с таким названием уже существует",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    },
+                    "433": {
+                        "description": "Ошибка возникающая при передаче неправильных данных в localizations",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри SignInRes в поле Err",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login/admin": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Аутенфикации админа",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Аутенфикации админа",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pb.SignInReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pb.SignInRes"
+                        }
+                    },
+                    "434": {
+                        "description": "Ошибка возникающая, если пользователь ввел не верный пароль",
+                        "schema": {
+                            "$ref": "#/definitions/pb.SignInRes"
+                        }
+                    },
+                    "435": {
+                        "description": "Ошибка возникающая, если админ с таким логином не найден",
+                        "schema": {
+                            "$ref": "#/definitions/pb.SignInRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри SignInRes в поле Err",
+                        "schema": {
+                            "$ref": "#/definitions/pb.SignInRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login/user": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Аутенфикации пользователя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Аутенфикации пользователя",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pb.SignInReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pb.SignInRes"
+                        }
+                    },
+                    "433": {
+                        "description": "Ошибка возникающая,если пользователь ввел ни почту и ни номер",
+                        "schema": {
+                            "$ref": "#/definitions/pb.SignInRes"
+                        }
+                    },
+                    "434": {
+                        "description": "Ошибка возникающая, если пользователь ввел не верный пароль",
+                        "schema": {
+                            "$ref": "#/definitions/pb.SignInRes"
+                        }
+                    },
+                    "435": {
+                        "description": "Ошибка возникающая, если пользователь с таким логином не найден",
+                        "schema": {
+                            "$ref": "#/definitions/pb.SignInRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри SignInRes в поле Err",
+                        "schema": {
+                            "$ref": "#/definitions/pb.SignInRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register/admin": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Регистрация админа",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Регистрация админа",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "admin",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
                             "$ref": "#/definitions/pb.RegReq"
                         }
                     }
@@ -142,10 +418,118 @@ const docTemplate = `{
                             "$ref": "#/definitions/pb.AuthRes"
                         }
                     },
-                    "500": {
-                        "description": "error",
+                    "432": {
+                        "description": "Ошибка возникающая, если админ с таким логином уже существует",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/pb.AuthRes"
+                        }
+                    },
+                    "433": {
+                        "description": "Ошибка возникающая, если пользователь ввел ни почту и ни пароль",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AuthRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри AuthRes в поле Err",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AuthRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register/user": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Регистрация пользователя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Регистрация пользователя",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pb.RegReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AuthRes"
+                        }
+                    },
+                    "432": {
+                        "description": "Пользователь с таким логином уже существует",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AuthRes"
+                        }
+                    },
+                    "433": {
+                        "description": "Ошибка возникающая если пользователь ввел ни почту и ни номер",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AuthRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри AuthRes в поле Err",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AuthRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/client/get/groups": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Чтобы получить список главных групп, поле group_id должно быть равно нулю. Для получение подгрупп тебе нужно отправить в group_id айди нужной группы",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "client groups"
+                ],
+                "summary": "Получение списка групп",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "GetGroupsReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pb.GetGroupsReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Всё прошло успешно",
+                        "schema": {
+                            "$ref": "#/definitions/pb.GetGroupsRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри GetGroupsRes в поле Err",
+                        "schema": {
+                            "$ref": "#/definitions/pb.GetGroupsRes"
                         }
                     }
                 }
@@ -153,10 +537,278 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "pb.AdminRes": {
+            "type": "object",
+            "properties": {
+                "err": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
         "pb.AuthRes": {
             "type": "object",
             "properties": {
                 "err": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pb.ChangeStatusReq": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pb.ChangeStatusRes": {
+            "type": "object",
+            "properties": {
+                "err": {
+                    "type": "string"
+                },
+                "object": {
+                    "type": "boolean"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pb.DataTableColumns": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "orderable": {
+                    "type": "boolean"
+                },
+                "search": {
+                    "$ref": "#/definitions/pb.Search"
+                },
+                "searchable": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "pb.DataTableOrder": {
+            "type": "object",
+            "properties": {
+                "column": {
+                    "type": "integer"
+                },
+                "dir": {
+                    "type": "string"
+                }
+            }
+        },
+        "pb.DataTableReq": {
+            "type": "object",
+            "properties": {
+                "columns": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/pb.DataTableColumns"
+                    }
+                },
+                "draw": {
+                    "type": "integer"
+                },
+                "filter": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "length": {
+                    "type": "integer"
+                },
+                "order": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/pb.DataTableOrder"
+                    }
+                },
+                "search": {
+                    "$ref": "#/definitions/pb.Search"
+                },
+                "start": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pb.DataTableRes": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "err": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pb.GetGroupsReq": {
+            "type": "object",
+            "properties": {
+                "group_id": {
+                    "type": "integer"
+                },
+                "language_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pb.GetGroupsRes": {
+            "type": "object",
+            "properties": {
+                "err": {
+                    "type": "string"
+                },
+                "groups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/pb.GetGroupsRes_Group"
+                    }
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pb.GetGroupsRes_Group": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "group_id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "pb.Localization": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "pb.RegGroupReq": {
+            "type": "object",
+            "properties": {
+                "localizations": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/pb.Localization"
+                    }
+                },
+                "parent_id": {
+                    "type": "integer"
+                },
+                "photos": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "sort_order": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "pb.RegProducerReq": {
+            "type": "object",
+            "properties": {
+                "localizations": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/pb.Localization"
+                    }
+                },
+                "photos": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "status": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "pb.RegProductReq": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "current_discount": {
+                    "type": "integer"
+                },
+                "jan": {
+                    "type": "string"
+                },
+                "localizations": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/pb.Localization"
+                    }
+                },
+                "model": {
+                    "type": "string"
+                },
+                "mpn": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "type": "integer"
+                },
+                "photos": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "rating": {
+                    "type": "number"
+                },
+                "sku": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "boolean"
+                },
+                "upc": {
+                    "type": "string"
+                },
+                "usbn": {
                     "type": "string"
                 }
             }
@@ -168,6 +820,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "pb.Search": {
+            "type": "object",
+            "properties": {
+                "regex": {
+                    "type": "boolean"
+                },
+                "value": {
                     "type": "string"
                 }
             }

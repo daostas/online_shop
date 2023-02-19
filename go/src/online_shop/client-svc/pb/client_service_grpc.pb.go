@@ -14,194 +14,244 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// UsersClient is the client API for Users service.
+// ClientsClient is the client API for Clients service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type UsersClient interface {
-	UpdateUserInfo(ctx context.Context, in *UpdateUserInfoReq, opts ...grpc.CallOption) (*UserRes, error)
-	UpdateUserPass(ctx context.Context, in *UpdateUserPassReq, opts ...grpc.CallOption) (*UserRes, error)
-	DeleteUser(ctx context.Context, in *DeleteUserReq, opts ...grpc.CallOption) (*UserRes, error)
-	AddToBasket(ctx context.Context, in *AddToBasketReq, opts ...grpc.CallOption) (*UserRes, error)
+type ClientsClient interface {
+	UpdateClientInfo(ctx context.Context, in *UpdateClientInfoReq, opts ...grpc.CallOption) (*ClientRes, error)
+	UpdateClientPass(ctx context.Context, in *UpdateClientPassReq, opts ...grpc.CallOption) (*ClientRes, error)
+	DeleteClient(ctx context.Context, in *DeleteClientReq, opts ...grpc.CallOption) (*ClientRes, error)
 }
 
-type usersClient struct {
+type clientsClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewUsersClient(cc grpc.ClientConnInterface) UsersClient {
-	return &usersClient{cc}
+func NewClientsClient(cc grpc.ClientConnInterface) ClientsClient {
+	return &clientsClient{cc}
 }
 
-func (c *usersClient) UpdateUserInfo(ctx context.Context, in *UpdateUserInfoReq, opts ...grpc.CallOption) (*UserRes, error) {
-	out := new(UserRes)
-	err := c.cc.Invoke(ctx, "/proto.Users/UpdateUserInfo", in, out, opts...)
+func (c *clientsClient) UpdateClientInfo(ctx context.Context, in *UpdateClientInfoReq, opts ...grpc.CallOption) (*ClientRes, error) {
+	out := new(ClientRes)
+	err := c.cc.Invoke(ctx, "/proto.Clients/UpdateClientInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *usersClient) UpdateUserPass(ctx context.Context, in *UpdateUserPassReq, opts ...grpc.CallOption) (*UserRes, error) {
-	out := new(UserRes)
-	err := c.cc.Invoke(ctx, "/proto.Users/UpdateUserPass", in, out, opts...)
+func (c *clientsClient) UpdateClientPass(ctx context.Context, in *UpdateClientPassReq, opts ...grpc.CallOption) (*ClientRes, error) {
+	out := new(ClientRes)
+	err := c.cc.Invoke(ctx, "/proto.Clients/UpdateClientPass", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *usersClient) DeleteUser(ctx context.Context, in *DeleteUserReq, opts ...grpc.CallOption) (*UserRes, error) {
-	out := new(UserRes)
-	err := c.cc.Invoke(ctx, "/proto.Users/DeleteUser", in, out, opts...)
+func (c *clientsClient) DeleteClient(ctx context.Context, in *DeleteClientReq, opts ...grpc.CallOption) (*ClientRes, error) {
+	out := new(ClientRes)
+	err := c.cc.Invoke(ctx, "/proto.Clients/DeleteClient", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *usersClient) AddToBasket(ctx context.Context, in *AddToBasketReq, opts ...grpc.CallOption) (*UserRes, error) {
-	out := new(UserRes)
-	err := c.cc.Invoke(ctx, "/proto.Users/AddToBasket", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// UsersServer is the server API for Users service.
-// All implementations must embed UnimplementedUsersServer
+// ClientsServer is the server API for Clients service.
+// All implementations must embed UnimplementedClientsServer
 // for forward compatibility
-type UsersServer interface {
-	UpdateUserInfo(context.Context, *UpdateUserInfoReq) (*UserRes, error)
-	UpdateUserPass(context.Context, *UpdateUserPassReq) (*UserRes, error)
-	DeleteUser(context.Context, *DeleteUserReq) (*UserRes, error)
-	AddToBasket(context.Context, *AddToBasketReq) (*UserRes, error)
-	mustEmbedUnimplementedUsersServer()
+type ClientsServer interface {
+	UpdateClientInfo(context.Context, *UpdateClientInfoReq) (*ClientRes, error)
+	UpdateClientPass(context.Context, *UpdateClientPassReq) (*ClientRes, error)
+	DeleteClient(context.Context, *DeleteClientReq) (*ClientRes, error)
+	mustEmbedUnimplementedClientsServer()
 }
 
-// UnimplementedUsersServer must be embedded to have forward compatible implementations.
-type UnimplementedUsersServer struct {
+// UnimplementedClientsServer must be embedded to have forward compatible implementations.
+type UnimplementedClientsServer struct {
 }
 
-func (UnimplementedUsersServer) UpdateUserInfo(context.Context, *UpdateUserInfoReq) (*UserRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserInfo not implemented")
+func (UnimplementedClientsServer) UpdateClientInfo(context.Context, *UpdateClientInfoReq) (*ClientRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateClientInfo not implemented")
 }
-func (UnimplementedUsersServer) UpdateUserPass(context.Context, *UpdateUserPassReq) (*UserRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserPass not implemented")
+func (UnimplementedClientsServer) UpdateClientPass(context.Context, *UpdateClientPassReq) (*ClientRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateClientPass not implemented")
 }
-func (UnimplementedUsersServer) DeleteUser(context.Context, *DeleteUserReq) (*UserRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
+func (UnimplementedClientsServer) DeleteClient(context.Context, *DeleteClientReq) (*ClientRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteClient not implemented")
 }
-func (UnimplementedUsersServer) AddToBasket(context.Context, *AddToBasketReq) (*UserRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddToBasket not implemented")
-}
-func (UnimplementedUsersServer) mustEmbedUnimplementedUsersServer() {}
+func (UnimplementedClientsServer) mustEmbedUnimplementedClientsServer() {}
 
-// UnsafeUsersServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to UsersServer will
+// UnsafeClientsServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ClientsServer will
 // result in compilation errors.
-type UnsafeUsersServer interface {
-	mustEmbedUnimplementedUsersServer()
+type UnsafeClientsServer interface {
+	mustEmbedUnimplementedClientsServer()
 }
 
-func RegisterUsersServer(s grpc.ServiceRegistrar, srv UsersServer) {
-	s.RegisterService(&Users_ServiceDesc, srv)
+func RegisterClientsServer(s grpc.ServiceRegistrar, srv ClientsServer) {
+	s.RegisterService(&Clients_ServiceDesc, srv)
 }
 
-func _Users_UpdateUserInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateUserInfoReq)
+func _Clients_UpdateClientInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateClientInfoReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UsersServer).UpdateUserInfo(ctx, in)
+		return srv.(ClientsServer).UpdateClientInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.Users/UpdateUserInfo",
+		FullMethod: "/proto.Clients/UpdateClientInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UsersServer).UpdateUserInfo(ctx, req.(*UpdateUserInfoReq))
+		return srv.(ClientsServer).UpdateClientInfo(ctx, req.(*UpdateClientInfoReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Users_UpdateUserPass_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateUserPassReq)
+func _Clients_UpdateClientPass_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateClientPassReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UsersServer).UpdateUserPass(ctx, in)
+		return srv.(ClientsServer).UpdateClientPass(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.Users/UpdateUserPass",
+		FullMethod: "/proto.Clients/UpdateClientPass",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UsersServer).UpdateUserPass(ctx, req.(*UpdateUserPassReq))
+		return srv.(ClientsServer).UpdateClientPass(ctx, req.(*UpdateClientPassReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Users_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteUserReq)
+func _Clients_DeleteClient_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteClientReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UsersServer).DeleteUser(ctx, in)
+		return srv.(ClientsServer).DeleteClient(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.Users/DeleteUser",
+		FullMethod: "/proto.Clients/DeleteClient",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UsersServer).DeleteUser(ctx, req.(*DeleteUserReq))
+		return srv.(ClientsServer).DeleteClient(ctx, req.(*DeleteClientReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Users_AddToBasket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddToBasketReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UsersServer).AddToBasket(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/proto.Users/AddToBasket",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UsersServer).AddToBasket(ctx, req.(*AddToBasketReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// Users_ServiceDesc is the grpc.ServiceDesc for Users service.
+// Clients_ServiceDesc is the grpc.ServiceDesc for Clients service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Users_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "proto.Users",
-	HandlerType: (*UsersServer)(nil),
+var Clients_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.Clients",
+	HandlerType: (*ClientsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "UpdateUserInfo",
-			Handler:    _Users_UpdateUserInfo_Handler,
+			MethodName: "UpdateClientInfo",
+			Handler:    _Clients_UpdateClientInfo_Handler,
 		},
 		{
-			MethodName: "UpdateUserPass",
-			Handler:    _Users_UpdateUserPass_Handler,
+			MethodName: "UpdateClientPass",
+			Handler:    _Clients_UpdateClientPass_Handler,
 		},
 		{
-			MethodName: "DeleteUser",
-			Handler:    _Users_DeleteUser_Handler,
+			MethodName: "DeleteClient",
+			Handler:    _Clients_DeleteClient_Handler,
 		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "client_service.proto",
+}
+
+// ClientGroupsClient is the client API for ClientGroups service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type ClientGroupsClient interface {
+	GetGroups(ctx context.Context, in *GetGroupsReq, opts ...grpc.CallOption) (*GetGroupsRes, error)
+}
+
+type clientGroupsClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewClientGroupsClient(cc grpc.ClientConnInterface) ClientGroupsClient {
+	return &clientGroupsClient{cc}
+}
+
+func (c *clientGroupsClient) GetGroups(ctx context.Context, in *GetGroupsReq, opts ...grpc.CallOption) (*GetGroupsRes, error) {
+	out := new(GetGroupsRes)
+	err := c.cc.Invoke(ctx, "/proto.ClientGroups/GetGroups", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ClientGroupsServer is the server API for ClientGroups service.
+// All implementations must embed UnimplementedClientGroupsServer
+// for forward compatibility
+type ClientGroupsServer interface {
+	GetGroups(context.Context, *GetGroupsReq) (*GetGroupsRes, error)
+	mustEmbedUnimplementedClientGroupsServer()
+}
+
+// UnimplementedClientGroupsServer must be embedded to have forward compatible implementations.
+type UnimplementedClientGroupsServer struct {
+}
+
+func (UnimplementedClientGroupsServer) GetGroups(context.Context, *GetGroupsReq) (*GetGroupsRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetGroups not implemented")
+}
+func (UnimplementedClientGroupsServer) mustEmbedUnimplementedClientGroupsServer() {}
+
+// UnsafeClientGroupsServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ClientGroupsServer will
+// result in compilation errors.
+type UnsafeClientGroupsServer interface {
+	mustEmbedUnimplementedClientGroupsServer()
+}
+
+func RegisterClientGroupsServer(s grpc.ServiceRegistrar, srv ClientGroupsServer) {
+	s.RegisterService(&ClientGroups_ServiceDesc, srv)
+}
+
+func _ClientGroups_GetGroups_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetGroupsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientGroupsServer).GetGroups(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.ClientGroups/GetGroups",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientGroupsServer).GetGroups(ctx, req.(*GetGroupsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// ClientGroups_ServiceDesc is the grpc.ServiceDesc for ClientGroups service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var ClientGroups_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.ClientGroups",
+	HandlerType: (*ClientGroupsServer)(nil),
+	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "AddToBasket",
-			Handler:    _Users_AddToBasket_Handler,
+			MethodName: "GetGroups",
+			Handler:    _ClientGroups_GetGroups_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
