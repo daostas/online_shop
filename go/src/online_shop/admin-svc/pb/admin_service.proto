@@ -69,10 +69,10 @@ message Search {
     bool regex = 2;
 }
 
-service Producers{
+service AdminProducers{
     rpc RegisterProducer (RegProducerReq) returns (AdminRes){}
-    rpc GetListOfProducers (EmptyAdminReq) returns (GetListOfProducersRes){}
-    rpc ChangeProducerStatus (ChangeStatusReq) returns (AdminRes){}
+    rpc GetListOfProducers (DataTableReq) returns (DataTableRes){}
+    rpc ChangeProducerStatus (ChangeStatusReq) returns (ChangeStatusRes){}
 }
 
 
@@ -101,27 +101,15 @@ message RegProducerReq{
 
 
 
-service Products {
+service AdminProducts {
     rpc RegisterProduct (RegProductReq) returns (AdminRes){}
     rpc GetListOfProducts (DataTableReq) returns (DataTableRes){}
-    rpc ChangeProductsStatus (ChangeStatusReq) returns (AdminRes){}
+    rpc GetProduct (GetProductReq) returns (GetProductRes){}
+    rpc ChangeProductsStatus (ChangeStatusReq) returns (ChangeStatusRes){}
+    rpc AddProductToGroup (AddToGroupReq) returns (AdminRes){}
+    rpc AddProductToProducer (AddToProducerReq) returns (AdminRes){}
 }
 
-message Product {
-    int32 parent_id = 1;
-    string model = 2;
-    string sku = 3;
-    string upc = 4;
-    string jan = 5;
-    string usbn = 6;
-    string mpn = 7;
-    repeated string photos = 8;
-    int32 amount = 9;
-    double rating = 10;
-    int32 current_discount = 11;
-    bool status = 12;
-    map<string, Localization>  localizations = 13;
-}
 
 message RegParentProductReq{
     string model = 1;
@@ -130,7 +118,7 @@ message RegParentProductReq{
     string jan = 4;
     string usbn = 5;
     string mpn = 6;
-    bool status = 7;
+    int32 price = 7;
     map<string, Localization>  localizations = 8;
 }
 
@@ -146,12 +134,10 @@ message RegProductReq{
     int32 amount = 9;
     double rating = 10;
     int32 current_discount = 11;
-    bool status = 12;
+    double price = 12;
     map<string, Localization>  localizations = 13;
 
 }
-
-
 message GetListOfProductsRes{
     message result{
         int32 product_id = 1;
@@ -161,6 +147,58 @@ message GetListOfProductsRes{
     }
     repeated result productslist = 1 ; 
     string err = 2;
+}
+
+message AddToGroupReq{
+    int32 product_id = 1; 
+    int32 group_id = 2;
+}
+
+message AddToProducerReq{
+    int32 product_id = 1; 
+    int32 producer_id = 2;
+}
+
+message GetProductReq{
+    int32 product_id = 1;
+    int32 lang_id = 2;
+}
+
+message GetProductRes{
+    message Product {
+        int32 parent_id = 1;
+        string model = 2;
+        string sku = 3;
+        string upc = 4;
+        string jan = 5;
+        string usbn = 6;
+        string mpn = 7;
+        repeated string photos = 8;
+        int32 amount = 9;
+        double rating = 10;
+        int32 current_discount = 11;
+        bool status = 12;
+        string title = 13;
+        string description = 14;
+    
+    }
+
+    message Parametr{
+        int32 parametr_id = 1;
+        string title = 2;
+        string value = 3;
+    }
+
+    message Kit {
+        int32 product_id = 1;
+        string title = 2;
+    }
+
+    Product product = 1;
+    repeated Kit kits = 2;
+    repeated Parametr parametrs = 3;
+    int32 status = 4;
+    string err = 5;
 }
 
 service AdminGroups {
@@ -181,16 +219,16 @@ message UpdateGroupReq{
 
 message RegGroupReq{
     int32 parent_id = 1;
-    repeated string photos = 2;
+    string photos = 2;
     bool status = 3;
     int32 sort_order = 4;
     map<string, Localization>  localizations = 5;
 }
 
-service Languages{
+service AdminLanguages{
     rpc NewLanguage (NewLangReq) returns (AdminRes){}
     rpc GetListOfLanguages (DataTableReq) returns (DataTableRes){}
-    rpc ChangeLanguageStatus (ChangeLanguageStatusReq) returns (ChangeStatusRes){}
+    rpc ChangeLanguageStatus (ChangeStatusReq) returns (ChangeStatusRes){}
 }
 
 message Language {
@@ -205,7 +243,12 @@ message Language {
 
 
 message NewLangReq{
-   Language language = 1;
+    string code = 1;
+    string image = 2; 
+    string locale = 3; 
+    string lang_name = 4;
+    int32 sort_order = 5;
+    bool status = 6;
 }
 
 message GetListOfLanguagesRes{
@@ -215,4 +258,42 @@ message GetListOfLanguagesRes{
 
 message ChangeLanguageStatusReq{
     int32 lang_id = 1;
+}
+
+
+service AdminSettingService {
+    rpc SetDefaultLanguage (SetDefaultLanguageReq) returns (AdminRes){}
+}
+
+
+message SetDefaultLanguageReq {
+    int32 lang_id = 1;
+}
+
+service AdminParametrs {
+    rpc RegisterParametr (RegParametrReq) returns (AdminRes){}
+    rpc UpdateParametr (UpdateParametrReq) returns (AdminRes) {}
+    rpc GetListOfParametrs (DataTableReq) returns (DataTableRes){}
+    rpc ChangeParametrsStatus (ChangeStatusReq) returns (ChangeStatusRes){}
+    rpc AddParametrToProduct (AddParametrToProductReq) returns (AdminRes){}
+    rpc AddParametrToGroup (AddParametrToGroupReq) returns (AdminRes){}
+}
+
+message AddParametrToGroupReq{
+    int32 parametr_id = 1;
+    int32 group_id = 2;
+}
+
+message AddParametrToProductReq{
+    int32 parametr_id = 1;
+    int32 product_id = 2;
+    string value = 3;
+}
+
+message RegParametrReq{
+    map<string, Localization>  localizations = 1;
+}
+
+message UpdateParametrReq{
+
 }

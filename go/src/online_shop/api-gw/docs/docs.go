@@ -25,6 +25,372 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/add/parametr/to/group": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Регистрация производителя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin producers"
+                ],
+                "summary": "Регистрация производителя",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "AddParametrToGroupReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pb.AddParametrToGroupReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Всё прошло успешно",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    },
+                    "209": {
+                        "description": "Прошло успешно, но есть warning, потому что группа с таким названием уже существует",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    },
+                    "433": {
+                        "description": "Ошибка возникающая при передаче неправильных данных в localizations",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри AdminRes в поле Err",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/add/parametr/to/product": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Регистрация производителя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin producers"
+                ],
+                "summary": "Регистрация производителя",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "AddParametrToProductReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pb.AddParametrToProductReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Всё прошло успешно",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    },
+                    "209": {
+                        "description": "Прошло успешно, но есть warning, потому что группа с таким названием уже существует",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    },
+                    "433": {
+                        "description": "Ошибка возникающая при передаче неправильных данных в localizations",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри AdminRes в поле Err",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/add/product/to/group": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "---",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin products"
+                ],
+                "summary": "Добавление продукта в группу товаров",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "AddToGroupReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pb.AddToGroupReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри AdminRes в поле Err",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/add/product/to/producer": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "---",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin products"
+                ],
+                "summary": "Добавление продукта к производителю",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "AddToProducerReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pb.AddToProducerReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри AdminRes в поле Err",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/change/status/groups": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "---",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin groups"
+                ],
+                "summary": "Смена статуса группы",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "ChangeStatusReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pb.ChangeStatusReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pb.ChangeStatusRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри ChangeStatusRes в поле Err",
+                        "schema": {
+                            "$ref": "#/definitions/pb.ChangeStatusRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/change/status/languages": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "---",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin languages"
+                ],
+                "summary": "Смена статуса языка",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "ChangeStatusReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pb.ChangeStatusReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pb.ChangeStatusRes"
+                        }
+                    },
+                    "403": {
+                        "description": "Ошибка возникающая если админ попробовал выключить язык, который поставлен дефолтным(главным) в админке",
+                        "schema": {
+                            "$ref": "#/definitions/pb.ChangeStatusRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри ChangeStatusRes в поле Err",
+                        "schema": {
+                            "$ref": "#/definitions/pb.ChangeStatusRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/change/status/producers": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "---",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin producers"
+                ],
+                "summary": "Смена статуса производителя",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "ChangeStatusReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pb.ChangeStatusReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pb.ChangeStatusRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри ChangeStatusRes в поле Err",
+                        "schema": {
+                            "$ref": "#/definitions/pb.ChangeStatusRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/change/status/products": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "---",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin products"
+                ],
+                "summary": "Смена статуса продукта",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "ChangeStatusReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pb.ChangeStatusReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pb.ChangeStatusRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри ChangeStatusRes в поле Err",
+                        "schema": {
+                            "$ref": "#/definitions/pb.ChangeStatusRes"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/get/list/groups": {
             "post": {
                 "security": [
@@ -32,18 +398,18 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Регистрация пользователя",
+                "description": "В поле Filter необходимо добавить поле Format: Если Format будет равен 0, то метод будет работать как дататэйбл для групп, если format равен 1 - метод будет работать в упрощенном режиме и просто вернет список всех языков в виде мап и проигнорирует все остльные данные в request, главное указать формат, чтобы метод работал в упрощенном режиме; А также необходимо добавить поле lang_id для получения данных на определенном языке, получить список языков можно методом get/list/languages",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "admin groups"
                 ],
-                "summary": "Регистрация пользователя",
+                "summary": "Получение списка групп в виде таблицы данных",
                 "parameters": [
                     {
                         "description": " ",
-                        "name": "admin",
+                        "name": "DataTableReq",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -59,7 +425,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри SignInRes в поле Err",
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри DataTableRes в поле Err",
                         "schema": {
                             "$ref": "#/definitions/pb.DataTableRes"
                         }
@@ -67,25 +433,25 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/groups/change/status": {
+        "/admin/get/list/languages": {
             "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Регистрация пользователя",
+                "description": "В поле Filter необходимо добавить поле Format: Если Format будет равен 0, то метод будет работать как дататэйбл для языков, если format равен 1 - метод будет работать в упрощенном режиме и просто вернет список всех языков в виде мап и проигнорирует все остльные данные в request, главное указать формат, чтобы метод работал в упрощенном режиме",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "admin languages"
                 ],
-                "summary": "Регистрация пользователя",
+                "summary": "Получение списка языков в виде таблицы данных",
                 "parameters": [
                     {
                         "description": " ",
-                        "name": "user",
+                        "name": "DataTableReq",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -97,13 +463,97 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/pb.ChangeStatusReq"
+                            "$ref": "#/definitions/pb.DataTableRes"
                         }
                     },
                     "500": {
-                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри SignInRes в поле Err",
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри DataTableRes в поле Err",
                         "schema": {
-                            "$ref": "#/definitions/pb.ChangeStatusRes"
+                            "$ref": "#/definitions/pb.DataTableRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/get/list/producers": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "В поле Filter необходимо добавить поле Format: Если Format будет равен 0, то метод будет работать как дататэйбл для производителей, если format равен 1 - метод будет работать в упрощенном режиме и просто вернет список всех языков в виде мап и проигнорирует все остльные данные в request, главное указать формат, чтобы метод работал в упрощенном режиме; А также необходимо добавить поле lang_id для получения данных на определенном языке, получить список языков можно методом get/list/languages",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin producers"
+                ],
+                "summary": "Получение списка производителей в виде таблицы данных",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "DataTableReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pb.DataTableReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pb.DataTableRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри DataTableRes в поле Err",
+                        "schema": {
+                            "$ref": "#/definitions/pb.DataTableRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/get/list/products": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "В поле Filter необходимо добавитьнеобходимо добавить поле lang_id для получения данных на определенном языке, получить список языков можно методом get/list/languages",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin products"
+                ],
+                "summary": "Получение списка продуктов в виде таблицы данных",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "DataTableReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pb.DataTableReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pb.DataTableRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри DataTableRes в поле Err",
+                        "schema": {
+                            "$ref": "#/definitions/pb.DataTableRes"
                         }
                     }
                 }
@@ -116,18 +566,18 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Регистрация пользователя",
+                "description": "Для регистрации главной группы parent_id должен быть 0, для дочерней группы должен присылаться айди группы, в которую хотим добавить дочернюю группу",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "admin groups"
                 ],
-                "summary": "Регистрация пользователя",
+                "summary": "Регистрация группы товаров",
                 "parameters": [
                     {
                         "description": " ",
-                        "name": "admin",
+                        "name": "RegGroupReq",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -155,7 +605,55 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри SignInRes в поле Err",
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри AdminRes в поле Err",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/register/languages": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Для регистрации главной группы parent_id должен быть 0, для дочерней группы должен присылаться айди группы, в которую хотим добавить дочернюю группу",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin languages"
+                ],
+                "summary": "Регистрация языка",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "NewLangReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pb.NewLangReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Всё прошло успешно",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    },
+                    "432": {
+                        "description": "Ошибка возникающая, если такой язык уже сущесвует",
+                        "schema": {
+                            "$ref": "#/definitions/pb.AdminRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри AdminRes в поле Err",
                         "schema": {
                             "$ref": "#/definitions/pb.AdminRes"
                         }
@@ -170,18 +668,18 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Регистрация пользователя",
+                "description": "Регистрация производителя",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "admin producers"
                 ],
-                "summary": "Регистрация пользователя",
+                "summary": "Регистрация производителя",
                 "parameters": [
                     {
                         "description": " ",
-                        "name": "admin",
+                        "name": "RegProducerReq",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -209,7 +707,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри SignInRes в поле Err",
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри AdminRes в поле Err",
                         "schema": {
                             "$ref": "#/definitions/pb.AdminRes"
                         }
@@ -224,18 +722,18 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Регистрация пользователя",
+                "description": "---",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "admin products"
                 ],
-                "summary": "Регистрация пользователя",
+                "summary": "Регистрация продукта",
                 "parameters": [
                     {
                         "description": " ",
-                        "name": "admin",
+                        "name": "RegProductReq",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -263,7 +761,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри SignInRes в поле Err",
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри AdminRes в поле Err",
                         "schema": {
                             "$ref": "#/definitions/pb.AdminRes"
                         }
@@ -500,7 +998,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Чтобы получить список главных групп, поле group_id должно быть равно нулю. Для получение подгрупп тебе нужно отправить в group_id айди нужной группы",
+                "description": "Чтобы получить список главных групп, поле group_id должно быть равно нулю. Для получение подгрупп тебе нужно отправить в group_id айди нужной группы. Поле language_id можно отправить ноль для получения данных на дэфолтном языке в базе",
                 "produces": [
                     "application/json"
                 ],
@@ -534,9 +1032,98 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/client/get/languages": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Ничего не принимает, возвращает все доступные языки в виде массива структур",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "client languages"
+                ],
+                "summary": "Получение списка языков",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "GetLanguagesReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pb.GetLanguagesReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Всё прошло успешно",
+                        "schema": {
+                            "$ref": "#/definitions/pb.GetLanguagesRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри GetGroupsRes в поле Err",
+                        "schema": {
+                            "$ref": "#/definitions/pb.GetLanguagesRes"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "pb.AddParametrToGroupReq": {
+            "type": "object",
+            "properties": {
+                "group_id": {
+                    "type": "integer"
+                },
+                "parametr_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pb.AddParametrToProductReq": {
+            "type": "object",
+            "properties": {
+                "parametr_id": {
+                    "type": "integer"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "pb.AddToGroupReq": {
+            "type": "object",
+            "properties": {
+                "group_id": {
+                    "type": "integer"
+                },
+                "product_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pb.AddToProducerReq": {
+            "type": "object",
+            "properties": {
+                "producer_id": {
+                    "type": "integer"
+                },
+                "product_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "pb.AdminRes": {
             "type": "object",
             "properties": {
@@ -701,7 +1288,50 @@ const docTemplate = `{
                 "group_id": {
                     "type": "integer"
                 },
+                "photos": {
+                    "type": "string"
+                },
                 "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "pb.GetLanguagesReq": {
+            "type": "object"
+        },
+        "pb.GetLanguagesRes": {
+            "type": "object",
+            "properties": {
+                "err": {
+                    "type": "string"
+                },
+                "languages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/pb.GetLanguagesRes_Language"
+                    }
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pb.GetLanguagesRes_Language": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "lang_id": {
+                    "type": "integer"
+                },
+                "locale": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 }
             }
@@ -714,6 +1344,29 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string"
+                }
+            }
+        },
+        "pb.NewLangReq": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "lang_name": {
+                    "type": "string"
+                },
+                "locale": {
+                    "type": "string"
+                },
+                "sort_order": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "boolean"
                 }
             }
         },
@@ -730,16 +1383,24 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "photos": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                    "type": "string"
                 },
                 "sort_order": {
                     "type": "integer"
                 },
                 "status": {
                     "type": "boolean"
+                }
+            }
+        },
+        "pb.RegParametrReq": {
+            "type": "object",
+            "properties": {
+                "localizations": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/pb.Localization"
+                    }
                 }
             }
         },
@@ -796,14 +1457,14 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
+                "price": {
+                    "type": "number"
+                },
                 "rating": {
                     "type": "number"
                 },
                 "sku": {
                     "type": "string"
-                },
-                "status": {
-                    "type": "boolean"
                 },
                 "upc": {
                     "type": "string"

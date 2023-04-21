@@ -33,7 +33,7 @@ func TestClientServices(t *testing.T) {
 		fmt.Printf("Error loading loadConfig: %v", err)
 		return
 	}
-	SqlDB, Db, err := repository.Conect_to_DB()
+	SqlDB, Db, err := repository.ConnectToDb()
 	if err != nil {
 		fmt.Printf("Cant connect to Database: %v", err)
 	}

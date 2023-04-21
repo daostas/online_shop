@@ -29,7 +29,7 @@ func main() {
 	}(logf)
 	logger := log.New(logf, "Admin Service: ", log.Flags())
 
-	SqlDB, Db, err := repository.Conect_to_DB()
+	SqlDB, Db, err := repository.ConnectToDb()
 	if err != nil {
 		log.Fatalf("Cant connect to Database: %v", err)
 	}
@@ -40,14 +40,14 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	producersrv := admin_service.NewProducersServer(Db, &cfg)
-	pb.RegisterProducersServer(s, producersrv)
-	productsrv := admin_service.NewProductsServer(Db, &cfg)
-	pb.RegisterProductsServer(s, productsrv)
+	producersrv := admin_service.NewAdminProducersServer(Db, &cfg)
+	pb.RegisterAdminProducersServer(s, producersrv)
+	productsrv := admin_service.NewAdminProductsServer(Db, &cfg)
+	pb.RegisterAdminProductsServer(s, productsrv)
 	groupsrv := admin_service.NewAdminGroupsServer(Db, &cfg)
 	pb.RegisterAdminGroupsServer(s, groupsrv)
-	langsrv := admin_service.NewLanguagesServer(Db, &cfg)
-	pb.RegisterLanguagesServer(s, langsrv)
+	langsrv := admin_service.NewAdminLanguagesServer(Db, &cfg)
+	pb.RegisterAdminLanguagesServer(s, langsrv)
 
 	lis, err := net.Listen("tcp", cfg.Port)
 	if err != nil {

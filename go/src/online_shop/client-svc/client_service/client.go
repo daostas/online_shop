@@ -2,12 +2,11 @@ package client_service
 
 import (
 	"context"
+	"golang.org/x/crypto/bcrypt"
+	"gopkg.in/reform.v1"
 	"online_shop/client-svc/config"
 	"online_shop/client-svc/pb"
 	"online_shop/repository/models"
-
-	"golang.org/x/crypto/bcrypt"
-	"gopkg.in/reform.v1"
 )
 
 type ClientsServer struct {
@@ -22,6 +21,48 @@ func NewClientsServiceServer(db *reform.DB, cfg *config.Config) *ClientsServer {
 		Cfg: cfg,
 	}
 }
+
+//func (s *ClientsServer) GetClientInfo(ctx context.Context, req *pb.ClientReq) (*pb.GetClientInfoRes, error){
+//
+//	// type UserClaims struct {
+//	// 	jwt.StandardClaims `json:"jwt-standard-claims"`
+//	// 	ID                 int32  `json:"id"`
+//	// 	Role               string `json:"role"`
+//	// }
+//
+//	// t := jwt2.FromHeader(ctx)
+//	// token, err := jwt.ParseWithClaims(t, &UserClaims{},
+//	// 	func(token *jwt.Token) (interface{}, error) {
+//	// 		return []byte(s.Cfg.JWTSecretKey), nil
+//	// 	},
+//	// )
+//
+//	type Req struct{
+//		id int32
+//	}
+//	request := Req{id: int32(1)}
+//
+//	client, err := s.Db.SelectOneFrom(models.UsersTable, "where user_id = $1", request.id)
+//	if err != nil{
+//		return &pb.GetClientInfoRes{
+//			Client: nil,
+//			Status: st.StatusInternalServerError,
+//			Err: "error in getting data from users table: " + fmt.Sprint(err),
+//		}, nil
+//	}
+//
+//res := &pb.GetClientInfoRes_Client{
+//	Name: *client.(*models.Users).UserName,
+//	Number: *client.(*models.Users).Number,
+//	Email: *client.(*models.Users).Email,
+//	Date: client.(*models.Users).Dob,
+//}
+//	return &pb.GetClientInfoRes{
+//		Client: nil,
+//		Status: st.StatusOK,
+//		Err: "success",
+//	}, nil
+//}
 
 func (s *ClientsServer) UpdateClientInfo(_ context.Context, req *pb.UpdateClientInfoReq) (*pb.ClientRes, error) {
 
@@ -64,7 +105,7 @@ func (s *ClientsServer) UpdateClientPass(_ context.Context, req *pb.UpdateClient
 			user.(*models.Users).UserPassword = string(hashed_pass) // замена старого пароля новым хэшированным
 
 			if err := s.Db.Save(user.(*models.Users)); err != nil { // сохраняю в базу
-				return &pb.ClientRes{Err: "Password savind error"}, nil
+				return &pb.ClientRes{Err: "Password saving error"}, nil
 			}
 		} else { // новый пароль и его повторение не совпадают
 			return &pb.ClientRes{Err: "the new password and its repetition do not match"}, nil
@@ -156,7 +197,7 @@ func (s *ClientsServer) DeleteClient(_ context.Context, req *pb.DeleteClientReq)
 		}
 
 	} else { // возврат ошибки о некоректных данных
-		return &pb.ClientRes{Err: "unvalid data"}, nil
+		return &pb.ClientRes{Err: "invalid data"}, nil
 	}
 
 	return &pb.ClientRes{Err: "success"}, nil

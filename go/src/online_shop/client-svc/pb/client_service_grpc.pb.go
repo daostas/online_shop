@@ -18,6 +18,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ClientsClient interface {
+	GetClientInfo(ctx context.Context, in *ClientReq, opts ...grpc.CallOption) (*GetClientInfoRes, error)
 	UpdateClientInfo(ctx context.Context, in *UpdateClientInfoReq, opts ...grpc.CallOption) (*ClientRes, error)
 	UpdateClientPass(ctx context.Context, in *UpdateClientPassReq, opts ...grpc.CallOption) (*ClientRes, error)
 	DeleteClient(ctx context.Context, in *DeleteClientReq, opts ...grpc.CallOption) (*ClientRes, error)
@@ -29,6 +30,15 @@ type clientsClient struct {
 
 func NewClientsClient(cc grpc.ClientConnInterface) ClientsClient {
 	return &clientsClient{cc}
+}
+
+func (c *clientsClient) GetClientInfo(ctx context.Context, in *ClientReq, opts ...grpc.CallOption) (*GetClientInfoRes, error) {
+	out := new(GetClientInfoRes)
+	err := c.cc.Invoke(ctx, "/proto.Clients/GetClientInfo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *clientsClient) UpdateClientInfo(ctx context.Context, in *UpdateClientInfoReq, opts ...grpc.CallOption) (*ClientRes, error) {
@@ -62,6 +72,7 @@ func (c *clientsClient) DeleteClient(ctx context.Context, in *DeleteClientReq, o
 // All implementations must embed UnimplementedClientsServer
 // for forward compatibility
 type ClientsServer interface {
+	GetClientInfo(context.Context, *ClientReq) (*GetClientInfoRes, error)
 	UpdateClientInfo(context.Context, *UpdateClientInfoReq) (*ClientRes, error)
 	UpdateClientPass(context.Context, *UpdateClientPassReq) (*ClientRes, error)
 	DeleteClient(context.Context, *DeleteClientReq) (*ClientRes, error)
@@ -72,6 +83,9 @@ type ClientsServer interface {
 type UnimplementedClientsServer struct {
 }
 
+func (UnimplementedClientsServer) GetClientInfo(context.Context, *ClientReq) (*GetClientInfoRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetClientInfo not implemented")
+}
 func (UnimplementedClientsServer) UpdateClientInfo(context.Context, *UpdateClientInfoReq) (*ClientRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateClientInfo not implemented")
 }
@@ -92,6 +106,24 @@ type UnsafeClientsServer interface {
 
 func RegisterClientsServer(s grpc.ServiceRegistrar, srv ClientsServer) {
 	s.RegisterService(&Clients_ServiceDesc, srv)
+}
+
+func _Clients_GetClientInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClientReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientsServer).GetClientInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Clients/GetClientInfo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientsServer).GetClientInfo(ctx, req.(*ClientReq))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Clients_UpdateClientInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -155,6 +187,10 @@ var Clients_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.Clients",
 	HandlerType: (*ClientsServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetClientInfo",
+			Handler:    _Clients_GetClientInfo_Handler,
+		},
 		{
 			MethodName: "UpdateClientInfo",
 			Handler:    _Clients_UpdateClientInfo_Handler,
@@ -252,6 +288,92 @@ var ClientGroups_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetGroups",
 			Handler:    _ClientGroups_GetGroups_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "client_service.proto",
+}
+
+// ClientLanguagesClient is the client API for ClientLanguages service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type ClientLanguagesClient interface {
+	GetLanguages(ctx context.Context, in *GetLanguagesReq, opts ...grpc.CallOption) (*GetLanguagesRes, error)
+}
+
+type clientLanguagesClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewClientLanguagesClient(cc grpc.ClientConnInterface) ClientLanguagesClient {
+	return &clientLanguagesClient{cc}
+}
+
+func (c *clientLanguagesClient) GetLanguages(ctx context.Context, in *GetLanguagesReq, opts ...grpc.CallOption) (*GetLanguagesRes, error) {
+	out := new(GetLanguagesRes)
+	err := c.cc.Invoke(ctx, "/proto.ClientLanguages/GetLanguages", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ClientLanguagesServer is the server API for ClientLanguages service.
+// All implementations must embed UnimplementedClientLanguagesServer
+// for forward compatibility
+type ClientLanguagesServer interface {
+	GetLanguages(context.Context, *GetLanguagesReq) (*GetLanguagesRes, error)
+	mustEmbedUnimplementedClientLanguagesServer()
+}
+
+// UnimplementedClientLanguagesServer must be embedded to have forward compatible implementations.
+type UnimplementedClientLanguagesServer struct {
+}
+
+func (UnimplementedClientLanguagesServer) GetLanguages(context.Context, *GetLanguagesReq) (*GetLanguagesRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLanguages not implemented")
+}
+func (UnimplementedClientLanguagesServer) mustEmbedUnimplementedClientLanguagesServer() {}
+
+// UnsafeClientLanguagesServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ClientLanguagesServer will
+// result in compilation errors.
+type UnsafeClientLanguagesServer interface {
+	mustEmbedUnimplementedClientLanguagesServer()
+}
+
+func RegisterClientLanguagesServer(s grpc.ServiceRegistrar, srv ClientLanguagesServer) {
+	s.RegisterService(&ClientLanguages_ServiceDesc, srv)
+}
+
+func _ClientLanguages_GetLanguages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetLanguagesReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientLanguagesServer).GetLanguages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.ClientLanguages/GetLanguages",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientLanguagesServer).GetLanguages(ctx, req.(*GetLanguagesReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// ClientLanguages_ServiceDesc is the grpc.ServiceDesc for ClientLanguages service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var ClientLanguages_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.ClientLanguages",
+	HandlerType: (*ClientLanguagesServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetLanguages",
+			Handler:    _ClientLanguages_GetLanguages_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

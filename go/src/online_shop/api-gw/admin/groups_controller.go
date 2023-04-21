@@ -11,14 +11,9 @@ import (
 
 	"github.com/kataras/iris/v12/mvc"
 
-	//"github.com/kataras/iris/v12/x/errors"
-	"online_shop/api-gw/config"
-	//"google.golang.org/grpc/codes"
 	"log"
 	"net"
-	//"net/http"
-	//"strconv"
-	//"time"
+	"online_shop/api-gw/config"
 )
 
 type AdminGroupsController struct {
@@ -29,26 +24,40 @@ type AdminGroupsController struct {
 }
 
 func SetupAdmin(app *mvc.Application, cfg *config.Config) {
-	GroupsСlient, err := InitAdminGroupsClient(cfg)
+	GroupsClient, err := InitAdminGroupsClient(cfg)
 	if err != nil {
 		log.Fatalf("Can't initialize user client: %v", err)
 	}
-	app.Register(GroupsСlient)
+	app.Register(GroupsClient)
 	app.Handle(new(AdminGroupsController))
 
-	ProductsСlient, err := InitProductsClient(cfg)
+	ProductsClient, err := InitAdminProductsClient(cfg)
 	if err != nil {
 		log.Fatalf("Can't initialize user client: %v", err)
 	}
-	app.Register(ProductsСlient)
-	app.Handle(new(ProductsController))
+	app.Register(ProductsClient)
+	app.Handle(new(AdminProductsController))
 
-	ProducersСlient, err := InitProducersClient(cfg)
+	ProducersClient, err := InitAdminProducersClient(cfg)
 	if err != nil {
 		log.Fatalf("Can't initialize user client: %v", err)
 	}
-	app.Register(ProducersСlient)
-	app.Handle(new(ProducersController))
+	app.Register(ProducersClient)
+	app.Handle(new(AdminProducersController))
+
+	LanguagesClient, err := InitAdminLanguagesClient(cfg)
+	if err != nil {
+		log.Fatalf("Can't initialize user client: %v", err)
+	}
+	app.Register(LanguagesClient)
+	app.Handle(new(AdminLanguagesController))
+
+	ParametrsClient, err := InitAdminParametrsClient(cfg)
+	if err != nil {
+		log.Fatalf("Can't initialize user client: %v", err)
+	}
+	app.Register(ParametrsClient)
+	app.Handle(new(AdminParametrsController))
 
 }
 
@@ -61,14 +70,14 @@ type DataTableResponse struct {
 }
 
 // PostLogin godoc
-// @Summary Регистрация пользователя
-// @Description Регистрация пользователя
+// @Summary Регистрация группы товаров
+// @Description Для регистрации главной группы parent_id должен быть 0, для дочерней группы должен присылаться айди группы, в которую хотим добавить дочернюю группу
 // @Tags admin groups
-// @Param  admin body pb.RegGroupReq true " "
+// @Param  RegGroupReq body pb.RegGroupReq true " "
 // @Produce json
 // @Success 200 {object} pb.AdminRes "Всё прошло успешно"
 // @Success 209 {object} pb.AdminRes "Прошло успешно, но есть warning, потому что группа с таким названием уже существует"
-// @Failure 500 {object} pb.AdminRes "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри SignInRes в поле Err"
+// @Failure 500 {object} pb.AdminRes "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри AdminRes в поле Err"
 // @Failure 433 {object} pb.AdminRes "Ошибка возникающая при передаче неправильных данных в localizations"
 // @Router /admin/register/groups [post]
 // @Security BearerAuth
@@ -110,13 +119,13 @@ func (c *AdminGroupsController) PostRegisterGroups(ctx iris.Context) *mvc.Respon
 }
 
 // PostLogin godoc
-// @Summary Регистрация пользователя
-// @Description Регистрация пользователя
+// @Summary Получение списка групп в виде таблицы данных
+// @Description В поле Filter необходимо добавить поле Format: Если Format будет равен 0, то метод будет работать как дататэйбл для групп, если format равен 1 - метод будет работать в упрощенном режиме и просто вернет список всех языков в виде мап и проигнорирует все остльные данные в request, главное указать формат, чтобы метод работал в упрощенном режиме; А также необходимо добавить поле lang_id для получения данных на определенном языке, получить список языков можно методом get/list/languages
 // @Tags admin groups
-// @Param  admin body pb.DataTableReq true " "
+// @Param  DataTableReq body pb.DataTableReq true " "
 // @Produce json
 // @Success 200 {object} pb.DataTableRes
-// @Failure 500 {object} pb.DataTableRes "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри SignInRes в поле Err"
+// @Failure 500 {object} pb.DataTableRes "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри DataTableRes в поле Err"
 // @Router /admin/get/list/groups [post]
 // @Security BearerAuth
 func (c *AdminGroupsController) PostGetListGroups(ctx iris.Context) *DataTableResponse {
@@ -148,21 +157,21 @@ func (c *AdminGroupsController) PostGetListGroups(ctx iris.Context) *DataTableRe
 }
 
 // PostLogin godoc
-// @Summary Регистрация пользователя
-// @Description Регистрация пользователя
-// @Tags user
-// @Param  user body pb.DataTableReq true " "
+// @Summary Смена статуса группы
+// @Description ---
+// @Tags admin groups
+// @Param  ChangeStatusReq body pb.ChangeStatusReq true " "
 // @Produce json
-// @Success 200 {object} pb.ChangeStatusReq
-// @Failure 500 {object} pb.ChangeStatusRes "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри SignInRes в поле Err"
-// @Router /admin/groups/change/status [post]
+// @Success 200 {object} pb.ChangeStatusRes
+// @Failure 500 {object} pb.ChangeStatusRes "Ошибка возникающая в методах внутри функции или в базе данных, более подробную информацию об ошибке можно получить внутри ChangeStatusRes в поле Err"
+// @Router /admin/change/status/groups [post]
 // @Security BearerAuth
-func (c *AdminGroupsController) PostGroupsChangeStatus(ctx iris.Context) *mvc.Response {
+func (c *AdminGroupsController) PostChangeStatusGroups(ctx iris.Context) *mvc.Response {
 	var req pb.ChangeStatusReq
 	err := ctx.ReadJSON(&req)
 	if err != nil {
 		return &mvc.Response{
-			Object: &pb.AdminRes{
+			Object: &pb.ChangeStatusRes{
 				Status: st.StatusInternalServerError,
 				Err:    "error in reading data from context"},
 			Err:  err,

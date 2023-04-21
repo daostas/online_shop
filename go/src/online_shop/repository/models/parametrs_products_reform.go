@@ -10,91 +10,91 @@ import (
 	"gopkg.in/reform.v1/parse"
 )
 
-type parametersProductsViewType struct {
+type parametrsProductsViewType struct {
 	s parse.StructInfo
 	z []interface{}
 }
 
 // Schema returns a schema name in SQL database ("").
-func (v *parametersProductsViewType) Schema() string {
+func (v *parametrsProductsViewType) Schema() string {
 	return v.s.SQLSchema
 }
 
-// Name returns a view or table name in SQL database ("parameters_products").
-func (v *parametersProductsViewType) Name() string {
+// Name returns a view or table name in SQL database ("parametrs_products").
+func (v *parametrsProductsViewType) Name() string {
 	return v.s.SQLName
 }
 
 // Columns returns a new slice of column names for that view or table in SQL database.
-func (v *parametersProductsViewType) Columns() []string {
+func (v *parametrsProductsViewType) Columns() []string {
 	return []string{
 		"product_id",
-		"parameter",
+		"parametr_id",
 		"value",
 	}
 }
 
 // NewStruct makes a new struct for that view or table.
-func (v *parametersProductsViewType) NewStruct() reform.Struct {
-	return new(ParametersProducts)
+func (v *parametrsProductsViewType) NewStruct() reform.Struct {
+	return new(ParametrsProducts)
 }
 
-// ParametersProductsView represents parameters_products view or table in SQL database.
-var ParametersProductsView = &parametersProductsViewType{
+// ParametrsProductsView represents parametrs_products view or table in SQL database.
+var ParametrsProductsView = &parametrsProductsViewType{
 	s: parse.StructInfo{
-		Type:    "ParametersProducts",
-		SQLName: "parameters_products",
+		Type:    "ParametrsProducts",
+		SQLName: "parametrs_products",
 		Fields: []parse.FieldInfo{
 			{Name: "ProductID", Type: "*int32", Column: "product_id"},
-			{Name: "Parameter", Type: "*string", Column: "parameter"},
-			{Name: "Value", Type: "*string", Column: "value"},
+			{Name: "ParametrID", Type: "*int32", Column: "parametr_id"},
+			{Name: "Value", Type: "string", Column: "value"},
 		},
 		PKFieldIndex: -1,
 	},
-	z: new(ParametersProducts).Values(),
+	z: new(ParametrsProducts).Values(),
 }
 
 // String returns a string representation of this struct or record.
-func (s ParametersProducts) String() string {
+func (s ParametrsProducts) String() string {
 	res := make([]string, 3)
 	res[0] = "ProductID: " + reform.Inspect(s.ProductID, true)
-	res[1] = "Parameter: " + reform.Inspect(s.Parameter, true)
+	res[1] = "ParametrID: " + reform.Inspect(s.ParametrID, true)
 	res[2] = "Value: " + reform.Inspect(s.Value, true)
 	return strings.Join(res, ", ")
 }
 
 // Values returns a slice of struct or record field values.
 // Returned interface{} values are never untyped nils.
-func (s *ParametersProducts) Values() []interface{} {
+func (s *ParametrsProducts) Values() []interface{} {
 	return []interface{}{
 		s.ProductID,
-		s.Parameter,
+		s.ParametrID,
 		s.Value,
 	}
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
 // Returned interface{} values are never untyped nils.
-func (s *ParametersProducts) Pointers() []interface{} {
+func (s *ParametrsProducts) Pointers() []interface{} {
 	return []interface{}{
 		&s.ProductID,
-		&s.Parameter,
+		&s.ParametrID,
 		&s.Value,
 	}
 }
 
 // View returns View object for that struct.
-func (s *ParametersProducts) View() reform.View {
-	return ParametersProductsView
+func (s *ParametrsProducts) View() reform.View {
+	return ParametrsProductsView
 }
 
 // check interfaces
 var (
-	_ reform.View   = ParametersProductsView
-	_ reform.Struct = (*ParametersProducts)(nil)
-	_ fmt.Stringer  = (*ParametersProducts)(nil)
+	_ reform.View   = ParametrsProductsView
+	_ reform.Struct = (*ParametrsProducts)(nil)
+	_ fmt.Stringer  = (*ParametrsProducts)(nil)
 )
 
 func init() {
-	parse.AssertUpToDate(&ParametersProductsView.s, new(ParametersProducts))
+	parse.AssertUpToDate(&ParametrsProductsView.s, new(ParametrsProducts))
 }

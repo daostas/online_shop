@@ -1,9 +1,8 @@
 package models
 
 import (
-	"time"
-
 	"github.com/lib/pq"
+	"time"
 )
 
 //go:generate reform

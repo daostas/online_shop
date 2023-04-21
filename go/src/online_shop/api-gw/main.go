@@ -79,7 +79,7 @@ func main() {
 	client.SetupClient(part, &cfg)
 
 	app.Logger().Println("API_GW on", cfg.Port, "\n")
-	fmt.Printf("Api-gw started on port %s", cfg.Port)
+	fmt.Printf("\nApi-gw started on port %s", cfg.Port)
 	err = app.Listen(cfg.Port)
 	if err != nil {
 		log.Fatal(err)

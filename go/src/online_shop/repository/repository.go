@@ -16,8 +16,8 @@ import (
 // reform-db -db-driver=postgres -db-source=postgresql://daostas:St_031028As@185.102.75.212:5432/online_shop -debug init
 
 // Подключение к бд
-func Conect_to_DB() (*sql.DB, *reform.DB, error) {
-	cfg := config.New_Config()
+func ConnectToDb() (*sql.DB, *reform.DB, error) {
+	cfg := config.NewConfig()
 
 	SqlDB, err := sql.Open("postgres", cfg.DbAddr)
 	if err != nil {
@@ -72,12 +72,12 @@ func NewProducer(photos pq.StringArray, status bool) *models.Producers {
 	}
 }
 
-func NewBasketProduct(basket_id int32, product_id int32) *models.BasketsProducts {
-	return &models.BasketsProducts{
-		BasketID:  &basket_id,
-		ProductID: &product_id,
-	}
-}
+//func NewBasketProduct(basket_id int32, product_id int32) *models.BasketsProducts {
+//	return &models.BasketsProducts{
+//		BasketID:  &basket_id,
+//		ProductID: &product_id,
+//	}
+//}
 
 func NewLanguage(code, image, locale, lang_name string, sort_order int32) *models.Languages {
 	return &models.Languages{
@@ -87,6 +87,8 @@ func NewLanguage(code, image, locale, lang_name string, sort_order int32) *model
 		LangName:  lang_name,
 		SortOrder: sort_order,
 		Status:    true,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 }
 
@@ -104,7 +106,7 @@ func NewAdmin(login, password, role string) *models.Admins {
 		Role:     role,
 	}
 }
-func NewProduct(parent_id *int32, model, sku, upc, jan, usbn, mpn string, photos pq.StringArray, amount *int32, rating *float64, discount *int32, status bool) *models.Products {
+func NewProduct(parent_id *int32, model, sku, upc, jan, usbn, mpn string, photos pq.StringArray, amount *int32, rating *float64, discount *int32) *models.Products {
 	return &models.Products{
 		ParentID:         parent_id,
 		Model:            &model,
@@ -117,13 +119,21 @@ func NewProduct(parent_id *int32, model, sku, upc, jan, usbn, mpn string, photos
 		Amount:           amount,
 		Rating:           rating,
 		CurreuntDiscount: discount,
-		Status:           status,
+		Status:           true,
 		CreatedAt:        time.Now(),
 		UpdatedAt:        time.Now(),
 	}
 }
 
-func NewLocalizaionForProducer(producer_id int32, lang_id int32, title, description string) *models.ProducersLocalization {
+func NewProductPrices(product_id, discount int32, price float64) *models.ProductsPrices {
+	return &models.ProductsPrices{
+		ProductID: &product_id,
+		Discount:  discount,
+		Price:     price,
+	}
+}
+
+func NewLocalizationForProducer(producer_id int32, lang_id int32, title, description string) *models.ProducersLocalization {
 	return &models.ProducersLocalization{
 		ProducerID:  &producer_id,
 		LangID:      &lang_id,
@@ -132,7 +142,7 @@ func NewLocalizaionForProducer(producer_id int32, lang_id int32, title, descript
 	}
 }
 
-func NewLocalizaionForProducts(product_id int32, lang_id int32, title, description string) *models.ProductsLocalization {
+func NewLocalizationForProducts(product_id int32, lang_id int32, title, description string) *models.ProductsLocalization {
 	return &models.ProductsLocalization{
 		ProductID:   &product_id,
 		LangID:      &lang_id,
@@ -141,7 +151,7 @@ func NewLocalizaionForProducts(product_id int32, lang_id int32, title, descripti
 	}
 }
 
-func NewLocalizaionForGroups(group_id int32, lang_id int32, title, description string) *models.GroupsLocalization {
+func NewLocalizationForGroups(group_id int32, lang_id int32, title, description string) *models.GroupsLocalization {
 	return &models.GroupsLocalization{
 		GroupID:     &group_id,
 		LangID:      &lang_id,
@@ -150,7 +160,7 @@ func NewLocalizaionForGroups(group_id int32, lang_id int32, title, description s
 	}
 }
 
-func NewGroup(parent_id *int32, photos pq.StringArray, status bool, sort_order int32, created_at time.Time, updated_at time.Time) *models.Groups {
+func NewGroup(parent_id *int32, photos *string, status bool, sort_order int32, created_at time.Time, updated_at time.Time) *models.Groups {
 	return &models.Groups{
 		ParentID:  parent_id,
 		Photos:    photos,
@@ -158,5 +168,50 @@ func NewGroup(parent_id *int32, photos pq.StringArray, status bool, sort_order i
 		SortOrder: sort_order,
 		CreatedAt: created_at,
 		UpdatedAt: updated_at,
+	}
+}
+
+func NewGroupsProducts(product_id, group_id int32) *models.GroupsProducts {
+	return &models.GroupsProducts{
+		ProductID: &product_id,
+		GroupID:   &group_id,
+	}
+}
+
+func NewProducersProducts(product_id, producer_id int32) *models.ProducersProducts {
+	return &models.ProducersProducts{
+		ProductID:  &product_id,
+		ProducerID: &producer_id,
+	}
+}
+
+func NewParametr() *models.Parametrs {
+	return &models.Parametrs{
+		Status:    true,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+}
+
+func NewLocalizationForParametr(parametr_id, lang_id int32, title string) *models.ParametrsLocalization {
+	return &models.ParametrsLocalization{
+		ParametrID: &parametr_id,
+		LangID:     &lang_id,
+		Title:      title,
+	}
+}
+
+func NewParametrsGroups(parametr_id, group_id int32) *models.ParametrsGroups {
+	return &models.ParametrsGroups{
+		ParametrID: &parametr_id,
+		GroupID:    &group_id,
+	}
+}
+
+func NewParametrsProducts(parametr_id, product_id int32, value string) *models.ParametrsProducts {
+	return &models.ParametrsProducts{
+		ParametrID: &parametr_id,
+		ProductID:  &product_id,
+		Value:      value,
 	}
 }

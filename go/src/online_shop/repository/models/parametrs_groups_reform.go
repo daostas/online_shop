@@ -10,86 +10,86 @@ import (
 	"gopkg.in/reform.v1/parse"
 )
 
-type parametersGroupsViewType struct {
+type parametrsGroupsViewType struct {
 	s parse.StructInfo
 	z []interface{}
 }
 
 // Schema returns a schema name in SQL database ("").
-func (v *parametersGroupsViewType) Schema() string {
+func (v *parametrsGroupsViewType) Schema() string {
 	return v.s.SQLSchema
 }
 
-// Name returns a view or table name in SQL database ("parameters_groups").
-func (v *parametersGroupsViewType) Name() string {
+// Name returns a view or table name in SQL database ("parametrs_groups").
+func (v *parametrsGroupsViewType) Name() string {
 	return v.s.SQLName
 }
 
 // Columns returns a new slice of column names for that view or table in SQL database.
-func (v *parametersGroupsViewType) Columns() []string {
+func (v *parametrsGroupsViewType) Columns() []string {
 	return []string{
 		"group_id",
-		"parameter",
+		"parametr_id",
 	}
 }
 
 // NewStruct makes a new struct for that view or table.
-func (v *parametersGroupsViewType) NewStruct() reform.Struct {
-	return new(ParametersGroups)
+func (v *parametrsGroupsViewType) NewStruct() reform.Struct {
+	return new(ParametrsGroups)
 }
 
-// ParametersGroupsView represents parameters_groups view or table in SQL database.
-var ParametersGroupsView = &parametersGroupsViewType{
+// ParametrsGroupsView represents parametrs_groups view or table in SQL database.
+var ParametrsGroupsView = &parametrsGroupsViewType{
 	s: parse.StructInfo{
-		Type:    "ParametersGroups",
-		SQLName: "parameters_groups",
+		Type:    "ParametrsGroups",
+		SQLName: "parametrs_groups",
 		Fields: []parse.FieldInfo{
 			{Name: "GroupID", Type: "*int32", Column: "group_id"},
-			{Name: "Parameter", Type: "*string", Column: "parameter"},
+			{Name: "ParametrID", Type: "*int32", Column: "parametr_id"},
 		},
 		PKFieldIndex: -1,
 	},
-	z: new(ParametersGroups).Values(),
+	z: new(ParametrsGroups).Values(),
 }
 
 // String returns a string representation of this struct or record.
-func (s ParametersGroups) String() string {
+func (s ParametrsGroups) String() string {
 	res := make([]string, 2)
 	res[0] = "GroupID: " + reform.Inspect(s.GroupID, true)
-	res[1] = "Parameter: " + reform.Inspect(s.Parameter, true)
+	res[1] = "ParametrID: " + reform.Inspect(s.ParametrID, true)
 	return strings.Join(res, ", ")
 }
 
 // Values returns a slice of struct or record field values.
 // Returned interface{} values are never untyped nils.
-func (s *ParametersGroups) Values() []interface{} {
+func (s *ParametrsGroups) Values() []interface{} {
 	return []interface{}{
 		s.GroupID,
-		s.Parameter,
+		s.ParametrID,
 	}
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
 // Returned interface{} values are never untyped nils.
-func (s *ParametersGroups) Pointers() []interface{} {
+func (s *ParametrsGroups) Pointers() []interface{} {
 	return []interface{}{
 		&s.GroupID,
-		&s.Parameter,
+		&s.ParametrID,
 	}
 }
 
 // View returns View object for that struct.
-func (s *ParametersGroups) View() reform.View {
-	return ParametersGroupsView
+func (s *ParametrsGroups) View() reform.View {
+	return ParametrsGroupsView
 }
 
 // check interfaces
 var (
-	_ reform.View   = ParametersGroupsView
-	_ reform.Struct = (*ParametersGroups)(nil)
-	_ fmt.Stringer  = (*ParametersGroups)(nil)
+	_ reform.View   = ParametrsGroupsView
+	_ reform.Struct = (*ParametrsGroups)(nil)
+	_ fmt.Stringer  = (*ParametrsGroups)(nil)
 )
 
 func init() {
-	parse.AssertUpToDate(&ParametersGroupsView.s, new(ParametersGroups))
+	parse.AssertUpToDate(&ParametrsGroupsView.s, new(ParametrsGroups))
 }

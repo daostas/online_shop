@@ -32,10 +32,17 @@ func SetupClient(app *mvc.Application, cfg *config.Config) {
 	app.Register(client)
 	app.Handle(new(ClientController))
 
-	groupsclient, err := InitClientGroupsClient(cfg)
+	ClientGroupsClient, err := InitClientGroupsClient(cfg)
 	if err != nil {
 		log.Fatalf("Can't initialize user client: %v", err)
 	}
-	app.Register(groupsclient)
+	app.Register(ClientGroupsClient)
 	app.Handle(new(ClientGroupsController))
+
+	ClientLanguagesClient, err := InitClientLanguagesClient(cfg)
+	if err != nil {
+		log.Fatalf("Can't initialize user client: %v", err)
+	}
+	app.Register(ClientLanguagesClient)
+	app.Handle(new(ClientLanguagesController))
 }

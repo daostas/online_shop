@@ -44,7 +44,7 @@ func (s *AuthServer) RegisterUser(_ context.Context, req *pb.RegReq) (*pb.AuthRe
 	if err != nil {
 		return &pb.AuthRes{
 			Status: st.StatusInternalServerError,
-			Err:    "error in begining of the tranzaction: " + fmt.Sprint(err),
+			Err:    "error in beginning of the transaction: " + fmt.Sprint(err),
 		}, nil
 	}
 
@@ -277,6 +277,7 @@ func (s *AuthServer) Validate(ctx context.Context, req *pb.ValidateReq) (*pb.Val
 			UserId: 0,
 		}, status.Errorf(codes.PermissionDenied, "%v", err)
 	}
+
 	return &pb.ValidateRes{
 		Status: int32(codes.OK),
 		Error:  "",
@@ -286,7 +287,7 @@ func (s *AuthServer) Validate(ctx context.Context, req *pb.ValidateReq) (*pb.Val
 
 }
 
-func (s *AuthServer) RegisterMainAdmin(ctx context.Context, req *pb.RegReqAdmin) (*pb.AuthRes, error) {
+func (s *AuthServer) RegisterMainAdmin(_ context.Context, req *pb.RegReqAdmin) (*pb.AuthRes, error) {
 
 	hashed_pass, err := bcrypt.GenerateFromPassword([]byte("password"), int(s.Cfg.BcryptCost)) // хэширование пароля
 	if err != nil {
@@ -303,7 +304,7 @@ func (s *AuthServer) RegisterMainAdmin(ctx context.Context, req *pb.RegReqAdmin)
 
 }
 
-func (s *AuthServer) RegisterAdmin(ctx context.Context, req *pb.RegReqAdmin) (*pb.AuthRes, error) {
+func (s *AuthServer) RegisterAdmin(_ context.Context, req *pb.RegReqAdmin) (*pb.AuthRes, error) {
 
 	only_numbers, is_email := true, false // Определение - был введен номер или почта
 	for i := 0; i < len(req.Login); i++ {

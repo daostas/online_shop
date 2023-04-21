@@ -26,3 +26,12 @@ func InitClientGroupsClient(c *config.Config) (pb.ClientGroupsClient, error) {
 	}
 	return pb.NewClientGroupsClient(cc), nil
 }
+
+func InitClientLanguagesClient(c *config.Config) (pb.ClientLanguagesClient, error) {
+	// using WithInsecure() because no SSL running
+	cc, err := grpc.Dial(c.ClientSvcUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, err
+	}
+	return pb.NewClientLanguagesClient(cc), nil
+}

@@ -29,7 +29,7 @@ func main() {
 	}(logf)
 	logger := log.New(logf, "Client Service: ", log.Flags())
 
-	SqlDB, Db, err := repository.Conect_to_DB()
+	SqlDB, Db, err := repository.ConnectToDb()
 	if err != nil {
 		log.Fatalf("Cant connect to Database: %v", err)
 	}
@@ -42,8 +42,10 @@ func main() {
 	s := grpc.NewServer()
 	clientsrv := clientservice.NewClientsServiceServer(Db, &cfg)
 	pb.RegisterClientsServer(s, clientsrv)
-	clientgroupssrv := clientservice.NewClientGroupsServer(Db, &cfg)
-	pb.RegisterClientGroupsServer(s, clientgroupssrv)
+	ClientGroupsServer := clientservice.NewClientGroupsServer(Db, &cfg)
+	pb.RegisterClientGroupsServer(s, ClientGroupsServer)
+	ClientLanguagesServer := clientservice.NewClientLanguagesServer(Db, &cfg)
+	pb.RegisterClientLanguagesServer(s, ClientLanguagesServer)
 
 	lis, err := net.Listen("tcp", cfg.Port)
 	if err != nil {

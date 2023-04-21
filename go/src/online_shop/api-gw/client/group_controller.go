@@ -28,7 +28,7 @@ type ClientGroupsController struct {
 
 // PostLogin godoc
 // @Summary Получение списка групп
-// @Description Чтобы получить список главных групп, поле group_id должно быть равно нулю. Для получение подгрупп тебе нужно отправить в group_id айди нужной группы
+// @Description Чтобы получить список главных групп, поле group_id должно быть равно нулю. Для получение подгрупп тебе нужно отправить в group_id айди нужной группы. Поле language_id можно отправить ноль для получения данных на дэфолтном языке в базе
 // @Tags client groups
 // @Param  GetGroupsReq body pb.GetGroupsReq true " "
 // @Produce json

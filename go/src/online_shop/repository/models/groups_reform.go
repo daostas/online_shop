@@ -61,7 +61,7 @@ var GroupsTable = &groupsTableType{
 		Fields: []parse.FieldInfo{
 			{Name: "GroupID", Type: "int32", Column: "group_id"},
 			{Name: "ParentID", Type: "*int32", Column: "parent_id"},
-			{Name: "Photos", Type: "pq.StringArray", Column: "photos"},
+			{Name: "Photos", Type: "*string", Column: "photos"},
 			{Name: "Status", Type: "bool", Column: "status"},
 			{Name: "SortOrder", Type: "int32", Column: "sort_order"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},

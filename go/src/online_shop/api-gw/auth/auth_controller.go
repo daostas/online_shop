@@ -204,7 +204,7 @@ func (c *AuthController) PostLoginUser(ctx iris.Context) *mvc.Response {
 	res, err := c.Client.SignInUser(ctx, &req)
 
 	if err != nil {
-		c.Logger.Errorf("Error authentification user: %v", err)
+		c.Logger.Errorf("Error authentication user: %v", err)
 		fmt.Println(err)
 		fmt.Println(err)
 		return &mvc.Response{
@@ -340,7 +340,7 @@ func (c *AuthController) PostLoginAdmin(ctx iris.Context) *mvc.Response {
 	}
 	res, err := c.Client.SignInAdmin(ctx, &req)
 	if err != nil {
-		c.Logger.Errorf("Error authentification user: %v", err)
+		c.Logger.Errorf("Error authentication user: %v", err)
 		return &mvc.Response{
 			Code:   st.StatusInternalServerError,
 			Object: nil,

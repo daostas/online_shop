@@ -35,6 +35,8 @@ func (v *languagesTableType) Columns() []string {
 		"lang_name",
 		"sort_order",
 		"status",
+		"created_at",
+		"updated_at",
 	}
 }
 
@@ -66,6 +68,8 @@ var LanguagesTable = &languagesTableType{
 			{Name: "LangName", Type: "string", Column: "lang_name"},
 			{Name: "SortOrder", Type: "int32", Column: "sort_order"},
 			{Name: "Status", Type: "bool", Column: "status"},
+			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
+			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -74,7 +78,7 @@ var LanguagesTable = &languagesTableType{
 
 // String returns a string representation of this struct or record.
 func (s Languages) String() string {
-	res := make([]string, 7)
+	res := make([]string, 9)
 	res[0] = "LangID: " + reform.Inspect(s.LangID, true)
 	res[1] = "Code: " + reform.Inspect(s.Code, true)
 	res[2] = "Image: " + reform.Inspect(s.Image, true)
@@ -82,6 +86,8 @@ func (s Languages) String() string {
 	res[4] = "LangName: " + reform.Inspect(s.LangName, true)
 	res[5] = "SortOrder: " + reform.Inspect(s.SortOrder, true)
 	res[6] = "Status: " + reform.Inspect(s.Status, true)
+	res[7] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[8] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -96,6 +102,8 @@ func (s *Languages) Values() []interface{} {
 		s.LangName,
 		s.SortOrder,
 		s.Status,
+		s.CreatedAt,
+		s.UpdatedAt,
 	}
 }
 
@@ -110,6 +118,8 @@ func (s *Languages) Pointers() []interface{} {
 		&s.LangName,
 		&s.SortOrder,
 		&s.Status,
+		&s.CreatedAt,
+		&s.UpdatedAt,
 	}
 }
 

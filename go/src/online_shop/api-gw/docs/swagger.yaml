@@ -1,5 +1,35 @@
 basePath: /
 definitions:
+  pb.AddParametrToGroupReq:
+    properties:
+      group_id:
+        type: integer
+      parametr_id:
+        type: integer
+    type: object
+  pb.AddParametrToProductReq:
+    properties:
+      parametr_id:
+        type: integer
+      product_id:
+        type: integer
+      value:
+        type: string
+    type: object
+  pb.AddToGroupReq:
+    properties:
+      group_id:
+        type: integer
+      product_id:
+        type: integer
+    type: object
+  pb.AddToProducerReq:
+    properties:
+      producer_id:
+        type: integer
+      product_id:
+        type: integer
+    type: object
   pb.AdminRes:
     properties:
       err:
@@ -106,7 +136,35 @@ definitions:
         type: string
       group_id:
         type: integer
+      photos:
+        type: string
       title:
+        type: string
+    type: object
+  pb.GetLanguagesReq:
+    type: object
+  pb.GetLanguagesRes:
+    properties:
+      err:
+        type: string
+      languages:
+        items:
+          $ref: '#/definitions/pb.GetLanguagesRes_Language'
+        type: array
+      status:
+        type: integer
+    type: object
+  pb.GetLanguagesRes_Language:
+    properties:
+      code:
+        type: string
+      image:
+        type: string
+      lang_id:
+        type: integer
+      locale:
+        type: string
+      name:
         type: string
     type: object
   pb.Localization:
@@ -115,6 +173,21 @@ definitions:
         type: string
       title:
         type: string
+    type: object
+  pb.NewLangReq:
+    properties:
+      code:
+        type: string
+      image:
+        type: string
+      lang_name:
+        type: string
+      locale:
+        type: string
+      sort_order:
+        type: integer
+      status:
+        type: boolean
     type: object
   pb.RegGroupReq:
     properties:
@@ -125,13 +198,18 @@ definitions:
       parent_id:
         type: integer
       photos:
-        items:
-          type: string
-        type: array
+        type: string
       sort_order:
         type: integer
       status:
         type: boolean
+    type: object
+  pb.RegParametrReq:
+    properties:
+      localizations:
+        additionalProperties:
+          $ref: '#/definitions/pb.Localization'
+        type: object
     type: object
   pb.RegProducerReq:
     properties:
@@ -168,12 +246,12 @@ definitions:
         items:
           type: string
         type: array
+      price:
+        type: number
       rating:
         type: number
       sku:
         type: string
-      status:
-        type: boolean
       upc:
         type: string
       usbn:
@@ -223,69 +301,391 @@ info:
   title: Quick Shop API
   version: "1.0"
 paths:
-  /admin/get/list/groups:
+  /admin/add/parametr/to/group:
     post:
-      description: Регистрация пользователя
+      description: Регистрация производителя
       parameters:
       - description: ' '
         in: body
-        name: admin
+        name: AddParametrToGroupReq
         required: true
         schema:
-          $ref: '#/definitions/pb.DataTableReq'
+          $ref: '#/definitions/pb.AddParametrToGroupReq'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Всё прошло успешно
           schema:
-            $ref: '#/definitions/pb.DataTableRes'
+            $ref: '#/definitions/pb.AdminRes'
+        "209":
+          description: Прошло успешно, но есть warning, потому что группа с таким
+            названием уже существует
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+        "433":
+          description: Ошибка возникающая при передаче неправильных данных в localizations
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
         "500":
           description: Ошибка возникающая в методах внутри функции или в базе данных,
-            более подробную информацию об ошибке можно получить внутри SignInRes в
+            более подробную информацию об ошибке можно получить внутри AdminRes в
             поле Err
           schema:
-            $ref: '#/definitions/pb.DataTableRes'
+            $ref: '#/definitions/pb.AdminRes'
       security:
       - BearerAuth: []
-      summary: Регистрация пользователя
+      summary: Регистрация производителя
       tags:
-      - admin groups
-  /admin/groups/change/status:
+      - admin producers
+  /admin/add/parametr/to/product:
     post:
-      description: Регистрация пользователя
+      description: Регистрация производителя
       parameters:
       - description: ' '
         in: body
-        name: user
+        name: AddParametrToProductReq
         required: true
         schema:
-          $ref: '#/definitions/pb.DataTableReq'
+          $ref: '#/definitions/pb.AddParametrToProductReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Всё прошло успешно
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+        "209":
+          description: Прошло успешно, но есть warning, потому что группа с таким
+            названием уже существует
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+        "433":
+          description: Ошибка возникающая при передаче неправильных данных в localizations
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри AdminRes в
+            поле Err
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+      security:
+      - BearerAuth: []
+      summary: Регистрация производителя
+      tags:
+      - admin producers
+  /admin/add/product/to/group:
+    post:
+      description: '---'
+      parameters:
+      - description: ' '
+        in: body
+        name: AddToGroupReq
+        required: true
+        schema:
+          $ref: '#/definitions/pb.AddToGroupReq'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/pb.ChangeStatusReq'
+            $ref: '#/definitions/pb.AdminRes'
         "500":
           description: Ошибка возникающая в методах внутри функции или в базе данных,
-            более подробную информацию об ошибке можно получить внутри SignInRes в
+            более подробную информацию об ошибке можно получить внутри AdminRes в
             поле Err
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+      security:
+      - BearerAuth: []
+      summary: Добавление продукта в группу товаров
+      tags:
+      - admin products
+  /admin/add/product/to/producer:
+    post:
+      description: '---'
+      parameters:
+      - description: ' '
+        in: body
+        name: AddToProducerReq
+        required: true
+        schema:
+          $ref: '#/definitions/pb.AddToProducerReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри AdminRes в
+            поле Err
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+      security:
+      - BearerAuth: []
+      summary: Добавление продукта к производителю
+      tags:
+      - admin products
+  /admin/change/status/groups:
+    post:
+      description: '---'
+      parameters:
+      - description: ' '
+        in: body
+        name: ChangeStatusReq
+        required: true
+        schema:
+          $ref: '#/definitions/pb.ChangeStatusReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pb.ChangeStatusRes'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри ChangeStatusRes
+            в поле Err
           schema:
             $ref: '#/definitions/pb.ChangeStatusRes'
       security:
       - BearerAuth: []
-      summary: Регистрация пользователя
+      summary: Смена статуса группы
       tags:
-      - user
-  /admin/register/groups:
+      - admin groups
+  /admin/change/status/languages:
     post:
-      description: Регистрация пользователя
+      description: '---'
       parameters:
       - description: ' '
         in: body
-        name: admin
+        name: ChangeStatusReq
+        required: true
+        schema:
+          $ref: '#/definitions/pb.ChangeStatusReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pb.ChangeStatusRes'
+        "403":
+          description: Ошибка возникающая если админ попробовал выключить язык, который
+            поставлен дефолтным(главным) в админке
+          schema:
+            $ref: '#/definitions/pb.ChangeStatusRes'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри ChangeStatusRes
+            в поле Err
+          schema:
+            $ref: '#/definitions/pb.ChangeStatusRes'
+      security:
+      - BearerAuth: []
+      summary: Смена статуса языка
+      tags:
+      - admin languages
+  /admin/change/status/producers:
+    post:
+      description: '---'
+      parameters:
+      - description: ' '
+        in: body
+        name: ChangeStatusReq
+        required: true
+        schema:
+          $ref: '#/definitions/pb.ChangeStatusReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pb.ChangeStatusRes'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри ChangeStatusRes
+            в поле Err
+          schema:
+            $ref: '#/definitions/pb.ChangeStatusRes'
+      security:
+      - BearerAuth: []
+      summary: Смена статуса производителя
+      tags:
+      - admin producers
+  /admin/change/status/products:
+    post:
+      description: '---'
+      parameters:
+      - description: ' '
+        in: body
+        name: ChangeStatusReq
+        required: true
+        schema:
+          $ref: '#/definitions/pb.ChangeStatusReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pb.ChangeStatusRes'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри ChangeStatusRes
+            в поле Err
+          schema:
+            $ref: '#/definitions/pb.ChangeStatusRes'
+      security:
+      - BearerAuth: []
+      summary: Смена статуса продукта
+      tags:
+      - admin products
+  /admin/get/list/groups:
+    post:
+      description: 'В поле Filter необходимо добавить поле Format: Если Format будет
+        равен 0, то метод будет работать как дататэйбл для групп, если format равен
+        1 - метод будет работать в упрощенном режиме и просто вернет список всех языков
+        в виде мап и проигнорирует все остльные данные в request, главное указать
+        формат, чтобы метод работал в упрощенном режиме; А также необходимо добавить
+        поле lang_id для получения данных на определенном языке, получить список языков
+        можно методом get/list/languages'
+      parameters:
+      - description: ' '
+        in: body
+        name: DataTableReq
+        required: true
+        schema:
+          $ref: '#/definitions/pb.DataTableReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pb.DataTableRes'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри DataTableRes
+            в поле Err
+          schema:
+            $ref: '#/definitions/pb.DataTableRes'
+      security:
+      - BearerAuth: []
+      summary: Получение списка групп в виде таблицы данных
+      tags:
+      - admin groups
+  /admin/get/list/languages:
+    post:
+      description: 'В поле Filter необходимо добавить поле Format: Если Format будет
+        равен 0, то метод будет работать как дататэйбл для языков, если format равен
+        1 - метод будет работать в упрощенном режиме и просто вернет список всех языков
+        в виде мап и проигнорирует все остльные данные в request, главное указать
+        формат, чтобы метод работал в упрощенном режиме'
+      parameters:
+      - description: ' '
+        in: body
+        name: DataTableReq
+        required: true
+        schema:
+          $ref: '#/definitions/pb.DataTableReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pb.DataTableRes'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри DataTableRes
+            в поле Err
+          schema:
+            $ref: '#/definitions/pb.DataTableRes'
+      security:
+      - BearerAuth: []
+      summary: Получение списка языков в виде таблицы данных
+      tags:
+      - admin languages
+  /admin/get/list/producers:
+    post:
+      description: 'В поле Filter необходимо добавить поле Format: Если Format будет
+        равен 0, то метод будет работать как дататэйбл для производителей, если format
+        равен 1 - метод будет работать в упрощенном режиме и просто вернет список
+        всех языков в виде мап и проигнорирует все остльные данные в request, главное
+        указать формат, чтобы метод работал в упрощенном режиме; А также необходимо
+        добавить поле lang_id для получения данных на определенном языке, получить
+        список языков можно методом get/list/languages'
+      parameters:
+      - description: ' '
+        in: body
+        name: DataTableReq
+        required: true
+        schema:
+          $ref: '#/definitions/pb.DataTableReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pb.DataTableRes'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри DataTableRes
+            в поле Err
+          schema:
+            $ref: '#/definitions/pb.DataTableRes'
+      security:
+      - BearerAuth: []
+      summary: Получение списка производителей в виде таблицы данных
+      tags:
+      - admin producers
+  /admin/get/list/products:
+    post:
+      description: В поле Filter необходимо добавитьнеобходимо добавить поле lang_id
+        для получения данных на определенном языке, получить список языков можно методом
+        get/list/languages
+      parameters:
+      - description: ' '
+        in: body
+        name: DataTableReq
+        required: true
+        schema:
+          $ref: '#/definitions/pb.DataTableReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pb.DataTableRes'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри DataTableRes
+            в поле Err
+          schema:
+            $ref: '#/definitions/pb.DataTableRes'
+      security:
+      - BearerAuth: []
+      summary: Получение списка продуктов в виде таблицы данных
+      tags:
+      - admin products
+  /admin/register/groups:
+    post:
+      description: Для регистрации главной группы parent_id должен быть 0, для дочерней
+        группы должен присылаться айди группы, в которую хотим добавить дочернюю группу
+      parameters:
+      - description: ' '
+        in: body
+        name: RegGroupReq
         required: true
         schema:
           $ref: '#/definitions/pb.RegGroupReq'
@@ -307,22 +707,55 @@ paths:
             $ref: '#/definitions/pb.AdminRes'
         "500":
           description: Ошибка возникающая в методах внутри функции или в базе данных,
-            более подробную информацию об ошибке можно получить внутри SignInRes в
+            более подробную информацию об ошибке можно получить внутри AdminRes в
             поле Err
           schema:
             $ref: '#/definitions/pb.AdminRes'
       security:
       - BearerAuth: []
-      summary: Регистрация пользователя
+      summary: Регистрация группы товаров
       tags:
       - admin groups
-  /admin/register/producers:
+  /admin/register/languages:
     post:
-      description: Регистрация пользователя
+      description: Для регистрации главной группы parent_id должен быть 0, для дочерней
+        группы должен присылаться айди группы, в которую хотим добавить дочернюю группу
       parameters:
       - description: ' '
         in: body
-        name: admin
+        name: NewLangReq
+        required: true
+        schema:
+          $ref: '#/definitions/pb.NewLangReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Всё прошло успешно
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+        "432":
+          description: Ошибка возникающая, если такой язык уже сущесвует
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри AdminRes в
+            поле Err
+          schema:
+            $ref: '#/definitions/pb.AdminRes'
+      security:
+      - BearerAuth: []
+      summary: Регистрация языка
+      tags:
+      - admin languages
+  /admin/register/producers:
+    post:
+      description: Регистрация производителя
+      parameters:
+      - description: ' '
+        in: body
+        name: RegProducerReq
         required: true
         schema:
           $ref: '#/definitions/pb.RegProducerReq'
@@ -344,22 +777,22 @@ paths:
             $ref: '#/definitions/pb.AdminRes'
         "500":
           description: Ошибка возникающая в методах внутри функции или в базе данных,
-            более подробную информацию об ошибке можно получить внутри SignInRes в
+            более подробную информацию об ошибке можно получить внутри AdminRes в
             поле Err
           schema:
             $ref: '#/definitions/pb.AdminRes'
       security:
       - BearerAuth: []
-      summary: Регистрация пользователя
+      summary: Регистрация производителя
       tags:
       - admin producers
   /admin/register/products:
     post:
-      description: Регистрация пользователя
+      description: '---'
       parameters:
       - description: ' '
         in: body
-        name: admin
+        name: RegProductReq
         required: true
         schema:
           $ref: '#/definitions/pb.RegProductReq'
@@ -381,13 +814,13 @@ paths:
             $ref: '#/definitions/pb.AdminRes'
         "500":
           description: Ошибка возникающая в методах внутри функции или в базе данных,
-            более подробную информацию об ошибке можно получить внутри SignInRes в
+            более подробную информацию об ошибке можно получить внутри AdminRes в
             поле Err
           schema:
             $ref: '#/definitions/pb.AdminRes'
       security:
       - BearerAuth: []
-      summary: Регистрация пользователя
+      summary: Регистрация продукта
       tags:
       - admin products
   /auth/login/admin:
@@ -542,7 +975,8 @@ paths:
     post:
       description: Чтобы получить список главных групп, поле group_id должно быть
         равно нулю. Для получение подгрупп тебе нужно отправить в group_id айди нужной
-        группы
+        группы. Поле language_id можно отправить ноль для получения данных на дэфолтном
+        языке в базе
       parameters:
       - description: ' '
         in: body
@@ -568,6 +1002,35 @@ paths:
       summary: Получение списка групп
       tags:
       - client groups
+  /client/get/languages:
+    post:
+      description: Ничего не принимает, возвращает все доступные языки в виде массива
+        структур
+      parameters:
+      - description: ' '
+        in: body
+        name: GetLanguagesReq
+        required: true
+        schema:
+          $ref: '#/definitions/pb.GetLanguagesReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Всё прошло успешно
+          schema:
+            $ref: '#/definitions/pb.GetLanguagesRes'
+        "500":
+          description: Ошибка возникающая в методах внутри функции или в базе данных,
+            более подробную информацию об ошибке можно получить внутри GetGroupsRes
+            в поле Err
+          schema:
+            $ref: '#/definitions/pb.GetLanguagesRes'
+      security:
+      - BearerAuth: []
+      summary: Получение списка языков
+      tags:
+      - client languages
 securityDefinitions:
   BearerAuth:
     in: header

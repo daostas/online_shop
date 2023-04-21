@@ -1,5 +1,6 @@
 syntax = "proto3";
 
+import "google/protobuf/timestamp.proto";
 package proto;
 option go_package = "../pb";
 // protoc -I=pb --go_out=pb  --go-grpc_out=pb  pb/client_service.proto
@@ -9,10 +10,28 @@ message ClientRes {
     string err = 1;
 }
 
+message ClientReq {
+}
+
 service Clients{
+    rpc GetClientInfo (ClientReq) returns (GetClientInfoRes){}
     rpc UpdateClientInfo (UpdateClientInfoReq) returns (ClientRes){}
     rpc UpdateClientPass (UpdateClientPassReq) returns (ClientRes){}
     rpc DeleteClient (DeleteClientReq) returns (ClientRes){}
+}
+
+message GetClientInfoRes{
+    message Client{
+        string name = 1;
+        string number = 2;
+        string email = 3;
+        google.protobuf.Timestamp date = 4;
+        string address = 5;
+        string password = 6;
+    }
+    Client client = 1;
+    int32 status = 2;
+    string err = 3;
 }
 
 message UpdateClientInfoReq {
@@ -55,10 +74,47 @@ message GetGroupsRes{
         int32 group_id = 1;
         string title = 2;
         string description = 3;
+        string photos = 4;
     }
 
     repeated Group groups = 1;
     int32 status = 2;
     string err = 3;
 
+}
+
+service ClientLanguages{
+    rpc GetLanguages (GetLanguagesReq) returns (GetLanguagesRes){}
+}
+
+message GetLanguagesReq{
+
+}
+
+message GetLanguagesRes{
+    message Language{
+        int32 lang_id = 1;
+        string code = 2;
+        string image = 3;
+        string locale = 4;
+        string name = 5;
+    }
+
+    repeated Language languages = 1;
+    int32 status = 2;
+    string err = 3;
+}
+
+service ClientParametrs{
+    rpc GetParametrs (GetParametrsReq) returns (GetParametrsRes){}
+}
+
+message GetParametrsReq{
+    int32 group_id = 1;
+}
+
+message GetParametrsRes{
+    message Parametr {
+        string name = 1;
+    }
 }

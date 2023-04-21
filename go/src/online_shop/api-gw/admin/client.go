@@ -19,22 +19,42 @@ func InitAdminGroupsClient(c *config.Config) (pb.AdminGroupsClient, error) {
 
 }
 
-func InitProductsClient(c *config.Config) (pb.ProductsClient, error) {
+func InitAdminProductsClient(c *config.Config) (pb.AdminProductsClient, error) {
 	// using WithInsecure() because no SSL running
 	cc, err := grpc.Dial(c.AdminSvcUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
-	return pb.NewProductsClient(cc), nil
+	return pb.NewAdminProductsClient(cc), nil
 
 }
 
-func InitProducersClient(c *config.Config) (pb.ProducersClient, error) {
+func InitAdminProducersClient(c *config.Config) (pb.AdminProducersClient, error) {
 	// using WithInsecure() because no SSL running
 	cc, err := grpc.Dial(c.AdminSvcUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
-	return pb.NewProducersClient(cc), nil
+	return pb.NewAdminProducersClient(cc), nil
+
+}
+
+func InitAdminLanguagesClient(c *config.Config) (pb.AdminLanguagesClient, error) {
+	// using WithInsecure() because no SSL running
+	cc, err := grpc.Dial(c.AdminSvcUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, err
+	}
+	return pb.NewAdminLanguagesClient(cc), nil
+
+}
+
+func InitAdminParametrsClient(c *config.Config) (pb.AdminParametrsClient, error) {
+	// using WithInsecure() because no SSL running
+	cc, err := grpc.Dial(c.AdminSvcUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, err
+	}
+	return pb.NewAdminParametrsClient(cc), nil
 
 }

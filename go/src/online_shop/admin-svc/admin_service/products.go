@@ -17,25 +17,25 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-type ProductsServer struct {
-	pb.UnimplementedProductsServer
+type AdminProductsServer struct {
+	pb.UnimplementedAdminProductsServer
 	Db  *reform.DB
 	Cfg *config.Config
 }
 
-func NewProductsServer(db *reform.DB, cfg *config.Config) *ProductsServer {
-	return &ProductsServer{
+func NewAdminProductsServer(db *reform.DB, cfg *config.Config) *AdminProductsServer {
+	return &AdminProductsServer{
 		Db:  db,
 		Cfg: cfg,
 	}
 }
 
-func (s *ProductsServer) RegisterProduct(ctx context.Context, req *pb.RegProductReq) (*pb.AdminRes, error) {
+func (s *AdminProductsServer) RegisterProduct(ctx context.Context, req *pb.RegProductReq) (*pb.AdminRes, error) {
 	tr, err := s.Db.Begin()
 	if err != nil {
 		return &pb.AdminRes{
 			Status: st.StatusInternalServerError,
-			Err:    "error in begining of the transaction: " + fmt.Sprint(err)}, nil
+			Err:    "error in beginning of the transaction: " + fmt.Sprint(err)}, nil
 	}
 
 	var amount, discount int32
@@ -51,6 +51,7 @@ func (s *ProductsServer) RegisterProduct(ctx context.Context, req *pb.RegProduct
 		parent_id = &req.ParentId
 		parent_prod, err = s.Db.SelectOneFrom(models.ProductsTable, "where product_id = $1", parent_id)
 		if err != nil {
+			tr.Rollback()
 			return &pb.AdminRes{
 				Status: st.StatusInternalServerError,
 				Err:    "error in getting data from products table: " + fmt.Sprint(err),
@@ -77,7 +78,7 @@ func (s *ProductsServer) RegisterProduct(ctx context.Context, req *pb.RegProduct
 	}
 
 	product := rep.NewProduct(parent_id, req.Model, req.Sku, req.Upc, req.Jan,
-		req.Usbn, req.Mpn, req.Photos, &amount, &rating, &discount, req.Status)
+		req.Usbn, req.Mpn, req.Photos, &amount, &rating, &discount)
 
 	err = tr.Insert(product)
 	if err != nil {
@@ -87,27 +88,57 @@ func (s *ProductsServer) RegisterProduct(ctx context.Context, req *pb.RegProduct
 			Err:    "error in inserting data into products table:" + fmt.Sprint(err)}, nil
 	}
 
-	if parent_id != nil {
-		for key, value := range req.Localizations {
-			num, err := strconv.Atoi(key)
-			if err != nil {
-				return &pb.AdminRes{Err: "invalid data: " + fmt.Sprint(err)}, nil
-			}
+	warn := false
+	for key, value := range req.Localizations {
+		num, err := strconv.Atoi(key)
+		if err != nil {
+			tr.Rollback()
+			return &pb.AdminRes{
+				Status: st.StatusInvalidData,
+				Err:    "invalid data in request localizations: " + fmt.Sprint(err)}, nil
+		}
 
-			loc := rep.NewLocalizaionForProducts(product.ProductID, int32(num), value.Title, value.Description)
-			err = tr.Insert(loc)
-			if err != nil {
-				tr.Rollback()
-				return &pb.AdminRes{Err: "error in inserting data into products localization table: " + fmt.Sprint(err)}, nil
+		if parent_id == nil {
+			_, err = s.Db.SelectOneFrom(models.ProductsLocalizationView, "where title = $1", value.Title)
+			if err == nil {
+				warn = true
 			}
+		}
+
+		loc := rep.NewLocalizationForProducts(product.ProductID, int32(num), value.Title, value.Description)
+		err = tr.Insert(loc)
+		if err != nil {
+			tr.Rollback()
+			return &pb.AdminRes{
+				Status: st.StatusInternalServerError,
+				Err:    "error in inserting data into products localization table: " + fmt.Sprint(err)}, nil
 		}
 	}
 
+	if parent_id != nil {
+		price := rep.NewProductPrices(product.ProductID, 0, req.Price)
+		err := tr.Insert(price)
+		if err != nil {
+			tr.Rollback()
+			return &pb.AdminRes{
+				Status: st.StatusInternalServerError,
+				Err:    "error in inserting fata in prices table: " + fmt.Sprint(err),
+			}, nil
+		}
+	}
 	tr.Commit()
-	return &pb.AdminRes{Err: "success"}, nil
+	if warn {
+		return &pb.AdminRes{
+			Status: st.StatusOkWithWarning,
+			Err:    "success, but product with this name already exist"}, nil
+
+	}
+	return &pb.AdminRes{
+		Status: st.StatusOK,
+		Err:    "success"}, nil
 }
 
-func (s *ProductsServer) GetListOfProducts(ctx context.Context, req *pb.DataTableReq) (*pb.DataTableRes, error) {
+func (s *AdminProductsServer) GetListOfProducts(ctx context.Context, req *pb.DataTableReq) (*pb.DataTableRes, error) {
 	basetail := ""
 	if req.Filter != nil {
 		basetail += " and  "
@@ -158,7 +189,7 @@ func (s *ProductsServer) GetListOfProducts(ctx context.Context, req *pb.DataTabl
 
 	query := fmt.Sprintf(`SELECT count(*) 
 						FROM products p, products_localization pl
-						WHERE p.products_id = pl.products_id and p.parent_id is null %s`, basetail)
+						WHERE p.product_id = pl.product_id and p.parent_id isnull %s`, basetail)
 
 	rows, err := s.Db.Query(query)
 	if err != nil {
@@ -192,9 +223,9 @@ func (s *ProductsServer) GetListOfProducts(ctx context.Context, req *pb.DataTabl
 
 	tail := fmt.Sprintf("LIMIT %d OFFSET %d", req.Length, req.Start)
 
-	query = fmt.Sprintf(`SELECT p.product_id, p.parent_id, pl.title, pl.description, p.photos, p.model, p.sku, p.upc, p.jan, p.usbn, p.mpn, p.status, p.created_at, p.updated_at
+	query = fmt.Sprintf(`SELECT p.product_id, pl.title, pl.description, p.photos, p.model, p.sku, p.upc, p.jan, p.usbn, p.mpn, p.amount, p.rating, p.status, p.created_at, p.updated_at
 						FROM products p, products_localization pl
-						WHERE p.product_id = pl.product_id %s %s`, basetail, tail)
+						WHERE p.product_id = pl.product_id AND p.parent_id is null %s %s`, basetail, tail)
 
 	rows, err = s.Db.Query(query)
 	if err != nil {
@@ -207,9 +238,8 @@ func (s *ProductsServer) GetListOfProducts(ctx context.Context, req *pb.DataTabl
 	var data []map[string]any
 	for rows.Next() {
 		var id int
-		var parent_id *int
 		var title string
-		var description string
+		var description *string
 		var photos *pq.StringArray
 		var model *string
 		var sku *string
@@ -217,11 +247,13 @@ func (s *ProductsServer) GetListOfProducts(ctx context.Context, req *pb.DataTabl
 		var jan *string
 		var usbn *string
 		var mpn *string
+		var amount int
+		var rating float32
 		var status bool
 		var created_at time.Time
 		var updated_at time.Time
 
-		err := rows.Scan(&id, &parent_id, &title, &description, &photos, &status, &model, &sku, &upc, &jan, &usbn, &mpn, &created_at, &updated_at)
+		err := rows.Scan(&id, &title, &description, &photos, &status, &model, &sku, &upc, &jan, &usbn, &mpn, &amount, &rating, &created_at, &updated_at)
 		if err != nil {
 			return &pb.DataTableRes{
 				Status: st.StatusInternalServerError,
@@ -232,11 +264,17 @@ func (s *ProductsServer) GetListOfProducts(ctx context.Context, req *pb.DataTabl
 
 		item["product_id"] = id
 		item["title"] = title
-		item["description"] = description
+		if description != nil {
+			item["description"] = *description
+		} else {
+			item["description"] = ""
+		}
 		if photos != nil {
 			item["photos"] = *photos
 		} else {
-			item["photos"] = ""
+			var ph []string
+			ph = append(ph, "")
+			item["photos"] = ph
 		}
 
 		if model != nil {
@@ -275,6 +313,8 @@ func (s *ProductsServer) GetListOfProducts(ctx context.Context, req *pb.DataTabl
 			item["mpn"] = ""
 		}
 
+		item["amount"] = amount
+		item["rating"] = rating
 		item["status"] = status
 		item["created_at"] = created_at
 		item["updated_at"] = updated_at
@@ -282,16 +322,16 @@ func (s *ProductsServer) GetListOfProducts(ctx context.Context, req *pb.DataTabl
 		data = append(data, item)
 	}
 
-	type Responce struct {
+	type Response struct {
 		Draw            int
 		Recordstotal    int
 		Recordsfiltered int
 		Data            []map[string]any
 	}
 
-	responce := &Responce{int(req.Draw), counttotal, countfiltered, data}
+	response := &Response{int(req.Draw), counttotal, countfiltered, data}
 
-	res, err := json.Marshal(responce)
+	res, err := json.Marshal(response)
 	if err != nil {
 		return &pb.DataTableRes{
 			Status: st.StatusInternalServerError,
@@ -304,10 +344,185 @@ func (s *ProductsServer) GetListOfProducts(ctx context.Context, req *pb.DataTabl
 		Err:    "success"}, nil
 }
 
-func (s *ProductsServer) ChangeProductStatus(ctx context.Context, req *pb.ChangeStatusReq) (*pb.AdminRes, error) {
-	product, err := s.Db.SelectOneFrom(models.ProducersTable, "where product_id = $1", req.Id)
+func (s *AdminProductsServer) GetProduct(ctx context.Context, req *pb.GetProductReq) (*pb.GetProductRes, error) {
+
+	query := fmt.Sprintf(`SELECT p.product_id, pl.title, pl.description, p.photos, p.model, p.sku, p.upc, p.jan, p.usbn, p.mpn, p.amount, p.rating, p.status, p.created_at, p.updated_at
+						FROM products p, products_localization pl
+						WHERE p.product_id = pl.product_id AND pl.lang_id = %d`, req.LangId)
+
+	rows, err := s.Db.Query(query)
 	if err != nil {
-		return &pb.AdminRes{Err: "error in getting data from product table"}, nil
+		return &pb.GetProductRes{
+			Status: st.StatusInternalServerError,
+			Err:    "error in getting data from products and products localization table: " + fmt.Sprint(err)}, nil
+	}
+	defer rows.Close()
+
+	var res *pb.GetProductRes
+	var product *pb.GetProductRes_Product
+	for rows.Next() {
+		var parent_id *int32
+		var title string
+		var description *string
+		var photos *pq.StringArray
+		var model *string
+		var sku *string
+		var upc *string
+		var jan *string
+		var usbn *string
+		var mpn *string
+		var amount int32
+		var rating float64
+		var status bool
+		var created_at time.Time
+		var updated_at time.Time
+
+		err := rows.Scan(&parent_id, &title, &description, &photos, &model, &sku, &upc, &jan, &usbn, &mpn, &amount, &rating, &status, &created_at, &updated_at)
+		if err != nil {
+			return &pb.GetProductRes{
+				Status: st.StatusInternalServerError,
+				Err:    "error in processing data from products tables: " + fmt.Sprint(err)}, nil
+		}
+
+		if parent_id != nil {
+			product.ParentId = *parent_id
+		} else {
+			product.ParentId = 0
+		}
+		product.Title = title
+		if description != nil {
+			product.Description = *description
+		} else {
+			product.Description = ""
+		}
+		if photos != nil {
+			product.Photos = *photos
+		} else {
+			var ph []string
+			ph = append(ph, "")
+			product.Photos = ph
+		}
+
+		if model != nil {
+			product.Model = *model
+		} else {
+			product.Model = ""
+		}
+		if sku != nil {
+			product.Sku = *sku
+		} else {
+			product.Sku = ""
+		}
+		if upc != nil {
+			product.Upc = *upc
+		} else {
+			product.Upc = ""
+		}
+		if jan != nil {
+			product.Jan = *jan
+		} else {
+			product.Jan = ""
+		}
+		if usbn != nil {
+			product.Usbn = *usbn
+		} else {
+			product.Usbn = ""
+		}
+		if mpn != nil {
+			product.Mpn = *mpn
+		} else {
+			product.Mpn = ""
+		}
+
+		product.Amount = amount
+		product.Rating = rating
+
+		res.Product = product
+	}
+
+	if product.ParentId == 0 {
+		kits_query := fmt.Sprintf(`SELECT p.product_id, pl.title 
+		FROM product p, products_localization pl
+		WHERE p.parent_id = %d AND pl.lang_id = %d`, req.ProductId, req.LangId)
+
+		kits_rows, err := s.Db.Query(kits_query)
+		if err != nil {
+			return &pb.GetProductRes{
+				Status: st.StatusInternalServerError,
+				Err:    "error in getting data from products and products localization table: " + fmt.Sprint(err)}, nil
+		}
+		defer kits_rows.Close()
+
+		var kits []*pb.GetProductRes_Kit
+		for kits_rows.Next() {
+			var product_id int32
+			var title string
+
+			err := kits_rows.Scan(&product_id, &title)
+			if err != nil {
+				return &pb.GetProductRes{
+					Status: st.StatusInternalServerError,
+					Err:    "error in processing data from products tables: " + fmt.Sprint(err)}, nil
+			}
+
+			var kit *pb.GetProductRes_Kit
+			kit.ProductId = product_id
+			kit.Title = title
+			kits = append(kits, kit)
+		}
+
+		res.Kits = kits
+	} else {
+
+		parametrs_query := fmt.Sprintf(`SELECT p.param_id, pl.title, p.value
+		FROM parametrs_products p, parametrs_localization pl
+		WHERE p.product_id = %d AND pl.lang_id = %d`, req.ProductId, req.LangId)
+
+		parametrs_rows, err := s.Db.Query(parametrs_query)
+		if err != nil {
+			return &pb.GetProductRes{
+				Status: st.StatusInternalServerError,
+				Err:    "error in getting data from products and products localization table: " + fmt.Sprint(err)}, nil
+		}
+		defer parametrs_rows.Close()
+
+		var parametrs []*pb.GetProductRes_Parametr
+		for parametrs_rows.Next() {
+
+			var param_id int32
+			var title string
+			var value string
+
+			err := parametrs_rows.Scan(&param_id, &title, &value)
+			if err != nil {
+				return &pb.GetProductRes{
+					Status: st.StatusInternalServerError,
+					Err:    "error in processing data from products tables: " + fmt.Sprint(err)}, nil
+			}
+
+			var parametr *pb.GetProductRes_Parametr
+			parametr.ParametrId = param_id
+			parametr.Title = title
+			parametr.Value = value
+			parametrs = append(parametrs, parametr)
+
+		}
+
+		res.Parametrs = parametrs
+	}
+
+	res.Status = st.StatusOK
+	res.Err = "success"
+	return res, nil
+
+}
+
+func (s *AdminProductsServer) ChangeProductStatus(ctx context.Context, req *pb.ChangeStatusReq) (*pb.ChangeStatusRes, error) {
+	product, err := s.Db.SelectOneFrom(models.ProductsTable, "where product_id = $1", req.Id)
+	if err != nil {
+		return &pb.ChangeStatusRes{
+			Status: st.StatusInternalServerError,
+			Err:    "error in getting data from products table: " + fmt.Sprint(err)}, nil
 	}
 
 	if product.(*models.Products).Status {
@@ -318,53 +533,47 @@ func (s *ProductsServer) ChangeProductStatus(ctx context.Context, req *pb.Change
 
 	err = s.Db.Save(product.(*models.Products))
 	if err != nil {
-		return &pb.AdminRes{Err: "error in saving changes in products table"}, nil
+		return &pb.ChangeStatusRes{
+			Status: st.StatusInternalServerError,
+			Err:    "error in saving changes in products table: " + fmt.Sprint(err)}, nil
 	}
-	return &pb.AdminRes{Err: "success"}, nil
+
+	return &pb.ChangeStatusRes{
+		Status: st.StatusOK,
+		Err:    "success",
+		Object: product.(*models.Products).Status,
+	}, nil
+
 }
-func (s *ProductsServer) ChangeParentProductsStatus(ctx context.Context, req *pb.ChangeStatusReq) (*pb.AdminRes, error) {
-	tr, err := s.Db.Begin()
+
+func (s *AdminProductsServer) AddProductToGroup(ctx context.Context, req *pb.AddToGroupReq) (*pb.AdminRes, error) {
+
+	gp := rep.NewGroupsProducts(req.ProductId, req.GroupId)
+
+	err := s.Db.Insert(gp)
 	if err != nil {
-		return &pb.AdminRes{Err: "error in begining of the transaction"}, nil
+		return &pb.AdminRes{
+			Status: st.StatusInternalServerError,
+			Err:    "error in inserting data in groups products table: " + fmt.Sprint(err)}, nil
 	}
 
-	product, err := s.Db.SelectOneFrom(models.ProductsTable, "where product_id = $1", req.Id)
+	return &pb.AdminRes{
+		Status: st.StatusOK,
+		Err:    "success"}, nil
+}
+
+func (s *AdminProductsServer) AddProductToProducer(ctx context.Context, req *pb.AddToProducerReq) (*pb.AdminRes, error) {
+
+	pp := rep.NewProducersProducts(req.ProductId, req.ProducerId)
+
+	err := s.Db.Insert(pp)
 	if err != nil {
-		tr.Rollback()
-		return &pb.AdminRes{Err: "error in getting data from product table"}, nil
+		return &pb.AdminRes{
+			Status: st.StatusInternalServerError,
+			Err:    "error in inserting data in producers products table: " + fmt.Sprint(err)}, nil
 	}
 
-	if product.(*models.Products).Status {
-		product.(*models.Products).Status = false
-	} else {
-		product.(*models.Products).Status = true
-	}
-
-	err = tr.Save(product.(*models.Products))
-	if err != nil {
-		tr.Rollback()
-		return &pb.AdminRes{Err: "error in saving changes in products table"}, nil
-	}
-
-	products, err := s.Db.SelectAllFrom(models.ProducersTable, "where parent_id = $1", req.Id)
-	if err != nil {
-		tr.Rollback()
-		return &pb.AdminRes{Err: "error in getting data from product table"}, nil
-	}
-
-	for i := range products {
-		if product.(*models.Products).Status {
-			products[i].(*models.Products).Status = true
-		} else {
-			products[i].(*models.Products).Status = false
-		}
-
-		err = tr.Save(products[i].(*models.Products))
-		if err != nil {
-			tr.Rollback()
-			return &pb.AdminRes{Err: "error in saving changes in products table"}, nil
-		}
-	}
-
-	return &pb.AdminRes{Err: "success"}, nil
+	return &pb.AdminRes{
+		Status: st.StatusOK,
+		Err:    "success"}, nil
 }

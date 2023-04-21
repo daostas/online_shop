@@ -6,7 +6,7 @@ var accessTable = map[string][]string{
 	"POST/auth/login/user":       {"ROLE_CLIENT", "ANONYMOUS"},
 	"POST/auth/login/admin":      {"ROLE_MAIN_ADMIN", "ROLE_ADMIN", "ANONYMOUS"},
 	"POST/admin/register/groups": {"ROLE_MAIN_ADMIN", "ROLE_ADMIN"},
-	"POST/admin/get/list/groups": {"ROLE_MAIN_ADMIN", "ROLE_ADMIN"},
+	"POST/admin/get/list/groups": {"ROLE_MAIN_ADMIN", "ROLE_ADMIN", "ANONYMOUS"},
 }
 
 func isAnonymous(method string, path string) bool {

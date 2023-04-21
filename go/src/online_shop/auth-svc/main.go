@@ -29,7 +29,7 @@ func main() {
 	}(logf)
 	logger := log.New(logf, "Auth Service: ", log.Flags())
 
-	SqlDB, Db, err := repository.Conect_to_DB()
+	SqlDB, Db, err := repository.ConnectToDb()
 	if err != nil {
 		log.Fatalf("Cant connect to Database: %v", err)
 	}

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"gopkg.in/reform.v1"
 	"online_shop/admin-svc/config"
 	"online_shop/admin-svc/pb"
 	rep "online_shop/repository"
@@ -12,23 +11,26 @@ import (
 	st "online_shop/status"
 	"strconv"
 	"time"
+
 	//"google.golang.org/protobuf/types/known/timestamppb"
+
+	"gopkg.in/reform.v1"
 )
 
-type AdminGroupsServer struct {
-	pb.UnimplementedAdminGroupsServer
+type AdminParametrsServer struct {
+	pb.UnimplementedAdminParametrsServer
 	Db  *reform.DB
 	Cfg *config.Config
 }
 
-func NewAdminGroupsServer(db *reform.DB, cfg *config.Config) *AdminGroupsServer {
-	return &AdminGroupsServer{
+func NewAdminParametrsServer(db *reform.DB, cfg *config.Config) *AdminParametrsServer {
+	return &AdminParametrsServer{
 		Db:  db,
 		Cfg: cfg,
 	}
 }
 
-func (s *AdminGroupsServer) RegisterGroup(_ context.Context, req *pb.RegGroupReq) (*pb.AdminRes, error) {
+func (s *AdminParametrsServer) RegisterParametr(ctx context.Context, req *pb.RegParametrReq) (*pb.AdminRes, error) {
 	tr, err := s.Db.Begin()
 	if err != nil {
 		return &pb.AdminRes{
@@ -36,18 +38,10 @@ func (s *AdminGroupsServer) RegisterGroup(_ context.Context, req *pb.RegGroupReq
 			Err:    "error in beginning of the transaction: " + fmt.Sprint(err)}, nil
 	}
 
-	var parent_id *int32
-	if req.ParentId == 0 {
-		parent_id = nil
-	} else {
-		parent_id = &req.ParentId
-	}
-	fmt.Println(time.Now())
-	group := rep.NewGroup(parent_id, &req.Photos, req.Status, req.SortOrder, time.Now(), time.Now())
+	parametr := rep.NewParametr()
 
-	err = tr.Insert(group)
+	err = tr.Insert(parametr)
 	if err != nil {
-		fmt.Println(err)
 		err2 := tr.Rollback()
 		if err2 != nil {
 			return &pb.AdminRes{
@@ -69,12 +63,12 @@ func (s *AdminGroupsServer) RegisterGroup(_ context.Context, req *pb.RegGroupReq
 				Err:    "invalid data in request localizations: " + fmt.Sprint(err)}, nil
 		}
 
-		_, err = s.Db.SelectOneFrom(models.GroupsLocalizationView, "where title = $1", value.Title)
+		_, err = s.Db.SelectOneFrom(models.ParametrsLocalizationView, "where title = $1", value.Title)
 		if err == nil {
 			warn = true
 		}
 
-		loc := rep.NewLocalizationForGroups(group.GroupID, int32(num), value.Title, value.Description)
+		loc := rep.NewLocalizationForParametr(parametr.ParametrID, int32(num), value.Title)
 		err = tr.Insert(loc)
 		if err != nil {
 			err2 := tr.Rollback()
@@ -106,7 +100,7 @@ func (s *AdminGroupsServer) RegisterGroup(_ context.Context, req *pb.RegGroupReq
 		Err:    "success"}, nil
 }
 
-func (s *AdminGroupsServer) GetListOfGroups(_ context.Context, req *pb.DataTableReq) (*pb.DataTableRes, error) {
+func (s *AdminGroupsServer) GetListOfParametrs(_ context.Context, req *pb.DataTableReq) (*pb.DataTableRes, error) {
 
 	basetail := ""
 	check := true
@@ -144,10 +138,10 @@ func (s *AdminGroupsServer) GetListOfGroups(_ context.Context, req *pb.DataTable
 			basetail += " and ("
 
 			for i, c := range sc {
-				if c.Data == "title" || c.Data == "description" {
-					basetail += "gl."
+				if c.Data == "title" {
+					basetail += "pl."
 				} else {
-					basetail += "g."
+					basetail += "p."
 				}
 
 				basetail += c.Data
@@ -161,16 +155,16 @@ func (s *AdminGroupsServer) GetListOfGroups(_ context.Context, req *pb.DataTable
 			basetail += " like " + "'%" + req.Search.Value + "%' "
 		}
 
-		counttotal, err := s.Db.Count(models.GroupsTable, "")
+		counttotal, err := s.Db.Count(models.ParametrsTable, "")
 		if err != nil {
 			return &pb.DataTableRes{
 				Status: st.StatusInternalServerError,
-				Err:    "error in getting data from groups table: " + fmt.Sprint(err)}, nil
+				Err:    "error in getting data from parametrs table: " + fmt.Sprint(err)}, nil
 		}
 
 		query := fmt.Sprintf(`SELECT count(*) 
-							FROM groups g, groups_localization gl
-							WHERE g.group_id = gl.group_id %s`, basetail)
+							FROM parametrs p, parametrs_localization pl
+							WHERE p.parametr_id = pl.parametr_id %s`, basetail)
 
 		rows, err := s.Db.Query(query)
 		defer rows.Close()
@@ -178,7 +172,7 @@ func (s *AdminGroupsServer) GetListOfGroups(_ context.Context, req *pb.DataTable
 		if err != nil {
 			return &pb.DataTableRes{
 				Status: st.StatusInternalServerError,
-				Err:    "error in getting data from groups and groups localization table: " + fmt.Sprint(err)}, nil
+				Err:    "error in getting data from parametrs and parametrs localization table: " + fmt.Sprint(err)}, nil
 		}
 
 		var countfiltered int
@@ -187,7 +181,7 @@ func (s *AdminGroupsServer) GetListOfGroups(_ context.Context, req *pb.DataTable
 			if err != nil {
 				return &pb.DataTableRes{
 					Status: st.StatusInternalServerError,
-					Err:    "error in processing data from groups tables: " + fmt.Sprint(err)}, nil
+					Err:    "error in processing data from parametrs tables: " + fmt.Sprint(err)}, nil
 			}
 		}
 
@@ -205,92 +199,38 @@ func (s *AdminGroupsServer) GetListOfGroups(_ context.Context, req *pb.DataTable
 
 		tail := fmt.Sprintf("LIMIT %d OFFSET %d", req.Length, req.Start)
 
-		query = fmt.Sprintf(`SELECT g.group_id, g.parent_id, gl.title, gl.description, g.photos, g.status, g.sort_order, g.created_at, g.updated_at
-							FROM groups g, groups_localization gl
-							WHERE g.group_id = gl.group_id %s %s`, basetail, tail)
+		query = fmt.Sprintf(`SELECT p.parametr_id, pl.title, p.status, p.created_at, p.updated_at
+							FROM parametrs p, parametrs_localization pl
+							WHERE p.parametr_id = pl.parametr_id %s %s`, basetail, tail)
 
 		rows2, err := s.Db.Query(query)
 		if err != nil {
 			return &pb.DataTableRes{
 				Status: st.StatusInternalServerError,
-				Err:    "error in getting data from groups and groups localization table: " + fmt.Sprint(err)}, nil
+				Err:    "error in getting data from parametrs and parametrs localization table: " + fmt.Sprint(err)}, nil
 		}
 		defer rows2.Close()
 
 		var data []map[string]any
 		for rows2.Next() {
 			var id int
-			var parent_id *int
 			var title string
-			var description string
-			var photos *string
 			var status bool
-			var sort_order int
 			var created_at time.Time
 			var updated_at time.Time
 
-			err := rows2.Scan(&id, &parent_id, &title, &description, &photos, &status, &sort_order, &created_at, &updated_at)
+			err := rows2.Scan(&id, &title, &status, &created_at, &updated_at)
 			if err != nil {
 				return &pb.DataTableRes{
 					Status: st.StatusInternalServerError,
-					Err:    "error in processing data from groups tables: " + fmt.Sprint(err)}, nil
+					Err:    "error in processing data from parametrs tables: " + fmt.Sprint(err)}, nil
 			}
 
-			check := true
-
-			path := ""
-			if parent_id != nil {
-				for i := 0; check; i++ {
-					query2 := fmt.Sprintf(`SELECT g.group_id, g.parent_id, gl.title
-					FROM groups g, groups_localization gl
-					WHERE g.group_id = gl.group_id and g.group_id = %d and gl.lang_id = %s`, *parent_id, req.Filter["lang_id"])
-
-					rows2, err := s.Db.Query(query2)
-					if err != nil {
-						return &pb.DataTableRes{
-							Err: "error in getting data from groups and groups localization table: " + fmt.Sprint(err)}, nil
-					}
-
-					for rows2.Next() {
-						var id2 int
-						var parent_id2 *int
-						var title2 string
-
-						err := rows2.Scan(&id2, &parent_id2, &title2)
-						if err != nil {
-							return &pb.DataTableRes{
-								Status: st.StatusInternalServerError,
-								Err:    "error in processing data from groups tables: " + fmt.Sprint(err)}, nil
-						}
-
-						if i == 0 {
-							path = title2
-						} else {
-							path = title2 + "->" + path
-						}
-
-						if parent_id2 != nil {
-							parent_id = parent_id2
-						} else {
-							check = false
-						}
-					}
-				}
-
-			}
 			item := map[string]any{}
 
 			item["group_id"] = id
-			item["path"] = path
 			item["title"] = title
-			item["description"] = description
-			if photos != nil {
-				item["photos"] = *photos
-			} else {
-				item["photos"] = ""
-			}
 			item["status"] = status
-			item["sort_order"] = sort_order
 			item["created_at"] = created_at
 			item["updated_at"] = updated_at
 
@@ -319,92 +259,38 @@ func (s *AdminGroupsServer) GetListOfGroups(_ context.Context, req *pb.DataTable
 			Err:    "success"}, nil
 	} else {
 
-		query := fmt.Sprintf(`SELECT g.group_id, g.parent_id, gl.title, gl.description, g.photos, g.status, g.sort_order, g.created_at, g.updated_at
-							FROM groups g, groups_localization gl
-							WHERE g.group_id = gl.group_id AND gl.lang_id = %s`, req.Filter["lang_id"])
+		query := fmt.Sprintf(`SELECT p.parametr_id, pl.title, p.status, p.created_at, p.updated_at
+							FROM parametrs p, parametrs_localization pl
+							WHERE p.parametr_id = pl.parametr_id AND pl.lang_id = %s`, req.Filter["lang_id"])
 
 		rows2, err := s.Db.Query(query)
 		if err != nil {
 			return &pb.DataTableRes{
 				Status: st.StatusInternalServerError,
-				Err:    "error in getting data from groups and groups localization table: " + fmt.Sprint(err)}, nil
+				Err:    "error in getting data from parametrs and parametrs localization table: " + fmt.Sprint(err)}, nil
 		}
 		defer rows2.Close()
 
 		var data []map[string]any
 		for rows2.Next() {
 			var id int
-			var parent_id *int
 			var title string
-			var description string
-			var photos *string
 			var status bool
-			var sort_order int
 			var created_at time.Time
 			var updated_at time.Time
 
-			err := rows2.Scan(&id, &parent_id, &title, &description, &photos, &status, &sort_order, &created_at, &updated_at)
+			err := rows2.Scan(&id, &title, &status, &created_at, &updated_at)
 			if err != nil {
 				return &pb.DataTableRes{
 					Status: st.StatusInternalServerError,
-					Err:    "error in processing data from groups tables: " + fmt.Sprint(err)}, nil
+					Err:    "error in processing data from parametrs tables: " + fmt.Sprint(err)}, nil
 			}
 
-			check := true
-
-			path := ""
-			if parent_id != nil {
-				for i := 0; check; i++ {
-					query2 := fmt.Sprintf(`SELECT g.group_id, g.parent_id, gl.title
-					FROM groups g, groups_localization gl
-					WHERE g.group_id = gl.group_id and g.group_id = %d and gl.lang_id = %s`, *parent_id, req.Filter["lang_id"])
-
-					rows2, err := s.Db.Query(query2)
-					if err != nil {
-						return &pb.DataTableRes{
-							Err: "error in getting data from groups and groups localization table: " + fmt.Sprint(err)}, nil
-					}
-
-					for rows2.Next() {
-						var id2 int
-						var parent_id2 *int
-						var title2 string
-
-						err := rows2.Scan(&id2, &parent_id2, &title2)
-						if err != nil {
-							return &pb.DataTableRes{
-								Status: st.StatusInternalServerError,
-								Err:    "error in processing data from groups tables: " + fmt.Sprint(err)}, nil
-						}
-
-						if i == 0 {
-							path = title2
-						} else {
-							path = title2 + "->" + path
-						}
-
-						if parent_id2 != nil {
-							parent_id = parent_id2
-						} else {
-							check = false
-						}
-					}
-				}
-
-			}
 			item := map[string]any{}
 
 			item["group_id"] = id
-			item["path"] = path
 			item["title"] = title
-			item["description"] = description
-			if photos != nil {
-				item["photos"] = *photos
-			} else {
-				item["photos"] = ""
-			}
 			item["status"] = status
-			item["sort_order"] = sort_order
 			item["created_at"] = created_at
 			item["updated_at"] = updated_at
 
@@ -435,31 +321,114 @@ func (s *AdminGroupsServer) GetListOfGroups(_ context.Context, req *pb.DataTable
 
 }
 
-func (s *AdminGroupsServer) ChangeGroupStatus(ctx context.Context, req *pb.ChangeStatusReq) (*pb.ChangeStatusRes, error) {
-	group, err := s.Db.SelectOneFrom(models.GroupsTable, "where group_id = $1", req.Id)
+func (s *AdminParametrsServer) AddParametrToGroup(ctx context.Context, req *pb.AddParametrToGroupReq) (*pb.AdminRes, error) {
+
+	tr, err := s.Db.Begin()
 	if err != nil {
-		return &pb.ChangeStatusRes{
+		return &pb.AdminRes{
 			Status: st.StatusInternalServerError,
-			Err:    "error in getting data from group table: " + fmt.Sprint(err)}, nil
+			Err:    "error in beginning of the transaction: " + fmt.Sprint(err),
+		}, nil
 	}
 
-	if group.(*models.Groups).Status {
-		group.(*models.Groups).Status = false
-	} else {
-		group.(*models.Groups).Status = true
-	}
-
-	err = s.Db.Save(group.(*models.Groups))
+	products, err := tr.SelectAllFrom(models.GroupsProductsView, "where group_id = $1", req.GroupId)
 	if err != nil {
-		return &pb.ChangeStatusRes{
+		tr.Rollback()
+		return &pb.AdminRes{
 			Status: st.StatusInternalServerError,
-			Err:    "error in saving changes in groups table: " + fmt.Sprint(err)}, nil
+			Err:    "error in getting data from groups products table: " + fmt.Sprint(err)}, nil
 	}
 
-	return &pb.ChangeStatusRes{
+	if products != nil {
+		check := false
+		var nums []int32
+		for _, prod := range products {
+			ok := false
+			parametrs, err := tr.SelectAllFrom(models.ParametrsProductsView, "where product_id = $1", prod.(*models.GroupsProducts).ProductID)
+			if err != nil {
+				tr.Rollback()
+				return &pb.AdminRes{
+					Status: st.StatusInternalServerError,
+					Err:    "error in getting data from parametrs products table: " + fmt.Sprint(err)}, nil
+			}
+
+			for _, parametr := range parametrs {
+				if parametr.(*models.ParametrsProducts).ParametrID == &req.GroupId {
+					ok = true
+				}
+			}
+
+			if !ok {
+				nums = append(nums, *prod.(*models.GroupsProducts).ProductID)
+				check = true
+			}
+		}
+
+		if check {
+			tail := ""
+			for i, num := range nums {
+				tail += strconv.Itoa(int(num))
+				if i != len(nums)-1 {
+					tail += ", "
+				}
+			}
+			tr.Rollback()
+			return &pb.AdminRes{
+				Status: st.StatusForbidden,
+				Err:    "not all products it this groups have that parametr. miss parametr in the products with this id: " + tail,
+			}, nil
+		}
+
+	}
+
+	_, err = tr.SelectOneFrom(models.ParametrsGroupsView, "where parametr_id = $1 and group_id = $2", req.ParametrId, req.GroupId)
+	if err == nil {
+		tr.Rollback()
+		return &pb.AdminRes{
+			Status: st.StatusAlreadyExist,
+			Err:    "that parametr already exist in this group",
+		}, nil
+	}
+	rec := rep.NewParametrsGroups(req.ParametrId, req.GroupId)
+
+	err = tr.Insert(rec)
+	if err != nil {
+		tr.Rollback()
+		return &pb.AdminRes{
+			Status: st.StatusInternalServerError,
+			Err:    "error in inserting data into parametrd groups table: " + fmt.Sprint(err),
+		}, nil
+	}
+
+	tr.Commit()
+	return &pb.AdminRes{
 		Status: st.StatusOK,
 		Err:    "success",
-		Object: group.(*models.Groups).Status,
 	}, nil
+}
 
+func (s *AdminParametrsServer) AddParametrToProduct(ctx context.Context, req *pb.AddParametrToProductReq) (*pb.AdminRes, error) {
+
+	_, err := s.Db.SelectOneFrom(models.ParametrsProductsView, "where parametr_id = $1 and product_id = $2", req.ParametrId, req.ProductId)
+	if err == nil {
+		return &pb.AdminRes{
+			Status: st.StatusAlreadyExist,
+			Err:    "that parametr already exist in this product",
+		}, nil
+	}
+	rec := rep.NewParametrsProducts(req.ParametrId, req.ProductId, req.Value)
+
+	err = s.Db.Insert(rec)
+
+	if err != nil {
+		return &pb.AdminRes{
+			Status: st.StatusInternalServerError,
+			Err:    "error in inserting data into parametrd groups table: " + fmt.Sprint(err),
+		}, nil
+	}
+
+	return &pb.AdminRes{
+		Status: st.StatusOK,
+		Err:    "success",
+	}, nil
 }
